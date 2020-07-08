@@ -2,7 +2,7 @@
 	"version": 2,
 	"functions": {
 		"api/main.ts": {
-      "runtime": "vercel-deno@0.3.0"
+      "runtime": "vercel-deno@0.3.2"
       }
 	}
 }
