@@ -34,29 +34,29 @@ app.get('/log', (req,res) => {
 
 //TODO better responses
 app.get('/authed', (req, res) => {
-    if((req.query.code == null || req.query.code == "" || req.query.status == null || req.query.status == "")){
+    if((req.query.code == null || req.query.code == "" || req.query.state == null || req.query.state == "")){
         res.send("Something went wrong 0");
         return;
     }
 
-    const codeRe = /^[\w]{64}$/;
+    const codeRe = /^[a-z0-9]{500,}$/;
     if(!req.query.code.match(codeRe)){
         res.send("Something went wrong 1");
         return;
     }
-    const statusRe = /^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$/;
-    if(!req.query.status.match(statusRe)){
+    const stateRe = /^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$/;
+    if(!req.query.state.match(stateRe)){
         res.send("Something went wrong 2");
         return;
     }
 
-    if(codeDict[req.query.status]){
+    if(codeDict[req.query.state]){
         if(codeDict[req.query.status] != "pending"){
             res.send("Something went wrong 3");
             return;
         }
         
-        codeDict[req.query.status] = req.query.code;
+        codeDict[req.query.state] = req.query.code;
         //TODO redirect to the app
         res.redirect('imal://finished');
         return;
