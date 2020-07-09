@@ -6,7 +6,7 @@ const hostname = "0.0.0.0";
 
 app.get('/*', (req, res) => {
     
-    let stringified = JSON.stringify(req.params);
+    let stringified = JSON.stringify(req.query);
     res.send(`${req.host}\n${stringified}`);
 });
 
