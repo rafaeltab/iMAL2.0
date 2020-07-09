@@ -70,7 +70,7 @@ app.get('/startauth', (req, res) => {
     var randomCode = create_UUID();
     codeDict[randomCode] = "pending";
     //send client id    
-    var verifier = base64URLEncode(crypto.randomBytes(128));
+    var verifier = base64URLEncode(crypto.randomBytes(96));
 
     let clienturl =`https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${client_id}&code_challenge=${verifier}&state=${randomCode}`
     
