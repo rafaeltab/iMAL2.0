@@ -38,7 +38,8 @@ export class AuthedController {
         let url = `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${CLIENT_ID}&code_challenge=${codeVerif}&state=${uuidState}`;
         Logger.Info(`Starting auth for ${req.ip} with uuidState: ${uuidState}`);
         res.status(200).json({
-            url: url
+            status: SUCCESS_STATUS,
+            message: url
         });
     }
 
