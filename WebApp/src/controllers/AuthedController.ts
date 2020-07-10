@@ -3,32 +3,38 @@ import { Controller, Middleware, Get, Put, Post, Delete } from '@overnightjs/cor
 import { Logger } from '@overnightjs/logger';
 import { getPKCE, getUUID, isUUID } from '../helpers/randomCodes';
 
-type dictEntry = {
-    state: string,
-    code: string
-}
-
-let codeDict: Map<string, string> = new Map<string, string>();
-
 const PENDING_STATE = "pending";
 const CANCELED_STATE = "canceled";
 
 const ERROR_STATUS = "error";
 const SUCCESS_STATUS = "success";
 
+let codeDict: Map<string, string> = new Map<string, string>(); 
 
 let CLIENT_ID = process.env.CLIENT_ID || "noenv";
 let CLIENT_SECRET = process.env.CLIENT_SECRET || "noenv";
 
 @Controller('authed')
 export class AuthedController {
+
+    @Get("log")
+    private logCodeDict(req: Request, res: Response) {
+        Logger.Info("Current CodeDict");
+        codeDict.forEach((value,key) => { 
+            Logger.Info(`${key}: ${value}`);
+        });
+        res.status(200).json({
+            status: SUCCESS_STATUS,
+            message: "Logged succesfully"
+        });
+    }
+
     @Get("start")
     private startAuth(req: Request, res: Response) {
         let codeVerif : string = getPKCE(128);
         let uuidState: string = getUUID();
 
         codeDict.set(uuidState, PENDING_STATE);
-
         let url = `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${CLIENT_ID}&code_challenge=${codeVerif}&state=${uuidState}`;
         Logger.Info(`Starting auth for ${req.ip} with uuidState: ${uuidState}`);
         res.status(200).json({
@@ -54,7 +60,7 @@ export class AuthedController {
             Logger.Info(`Auth ERR for ${state}: ${req.query.hint}`);
 
             codeDict.set(state,CANCELED_STATE);
-            res.send(200).json({
+            res.status(200).json({
                 status: SUCCESS_STATUS,
                 message: `authentication for ${state} has been canceled`
             });
