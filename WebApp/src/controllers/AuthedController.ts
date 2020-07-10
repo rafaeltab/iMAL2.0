@@ -2,17 +2,16 @@ import { Request, Response } from 'express';
 import { Controller, Middleware, Get, Put, Post, Delete } from '@overnightjs/core';
 import { Logger } from '@overnightjs/logger';
 import { getPKCE, getUUID, isUUID } from '../helpers/randomCodes';
+import { tokenResponse, GetToken, ResponseMessage } from '../MALWrapper/Authentication';
+import { CLIENT_ID, CLIENT_SECRET, ERROR_STATUS, SUCCESS_STATUS } from '../helpers/GLOBALVARS';
 
 const PENDING_STATE = "pending";
 const CANCELED_STATE = "canceled";
 
-const ERROR_STATUS = "error";
-const SUCCESS_STATUS = "success";
 
-let codeDict: Map<string, string> = new Map<string, string>(); 
 
-let CLIENT_ID = process.env.CLIENT_ID || "noenv";
-let CLIENT_SECRET = process.env.CLIENT_SECRET || "noenv";
+let codeDict: Map<string, tokenResponse | "pending" | "canceled"> = new Map<string, tokenResponse | "pending" | "canceled">(); 
+
 
 @Controller('authed')
 export class AuthedController {
@@ -21,7 +20,7 @@ export class AuthedController {
     private logCodeDict(req: Request, res: Response) {
         Logger.Info("Current CodeDict");
         codeDict.forEach((value,key) => { 
-            Logger.Info(`${key}: ${value}`);
+            Logger.Info(`${key}: ${JSON.stringify(value)}`);
         });
         res.status(200).json({
             status: SUCCESS_STATUS,
@@ -39,7 +38,8 @@ export class AuthedController {
         Logger.Info(`Starting auth for ${req.ip} with uuidState: ${uuidState}`);
         res.status(200).json({
             status: SUCCESS_STATUS,
-            message: url
+            message: url,
+            code: uuidState
         });
     }
 
@@ -110,11 +110,17 @@ export class AuthedController {
             });
             return;
         } else if (codeDict.get(state) == PENDING_STATE) {
-            codeDict.set(state, code);
-            res.status(200).json({
-                status: SUCCESS_STATUS,
-                message: "Authentication successfull"
-            });
+            //codeDict.set(state, code);
+            let token = GetToken(code);
+            if (token as tokenResponse) {
+                codeDict.set(state, <tokenResponse>token);
+                res.status(200).json({
+                    status: SUCCESS_STATUS,
+                    message: "Authentication successfull"
+                });
+            } else {
+                res.status(500).json(<ResponseMessage>token);
+            }           
             return;
         } else if(codeDict.get(state) == CANCELED_STATE){
             res.status(403).json({
