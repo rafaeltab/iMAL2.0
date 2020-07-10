@@ -112,7 +112,8 @@ export class AuthedController {
         } else if (codeDict.get(state) == PENDING_STATE) {
             //codeDict.set(state, code);
             let token = GetToken(code);
-            if (token as tokenResponse) {
+            //TODO doesnt correctly prevent errors from making it into codeDict
+            if (!(token as ResponseMessage).status) {
                 codeDict.set(state, <tokenResponse>token);
                 res.status(200).json({
                     status: SUCCESS_STATUS,
