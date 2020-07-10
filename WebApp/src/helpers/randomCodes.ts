@@ -1,5 +1,4 @@
 import * as crypto from "crypto";
-import { isNullOrUndefined } from 'util';
 
 function base64URLEncode(str : Buffer) {
     return str.toString('base64')
