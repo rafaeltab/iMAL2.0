@@ -9,9 +9,12 @@ const PENDING_STATE = "pending";
 const CANCELED_STATE = "canceled";
 const ERRORED_STATE = "error";
 
+type pending = {
+    state: "pending",
+    verifier: string
+}
 
-
-let codeDict: Map<string, tokenResponse | "pending" | "canceled" | "error"> = new Map<string, tokenResponse | "pending" | "canceled" | "error">(); 
+let codeDict: Map<string, tokenResponse | pending | "canceled" | "error"> = new Map<string, tokenResponse | pending | "canceled" | "error">(); 
 
 
 @Controller('authed')
@@ -34,7 +37,7 @@ export class AuthedController {
         let codeVerif : string = getPKCE(128);
         let uuidState: string = getUUID();
 
-        codeDict.set(uuidState, PENDING_STATE);
+        codeDict.set(uuidState, {state:PENDING_STATE,verifier:codeVerif});
         let url = `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${CLIENT_ID}&code_challenge=${codeVerif}&state=${uuidState}`;
         Logger.Info(`Starting auth for ${req.ip} with uuidState: ${uuidState}`);
         res.status(200).json({
@@ -107,6 +110,8 @@ export class AuthedController {
             return;
         }
         
+        let codeDictState = codeDict.get(state);
+
         //life is good!
         if (!codeDict.has(state)) {
             res.status(403).json({
@@ -114,10 +119,10 @@ export class AuthedController {
                 message: "Authentication needs to be started first. This error might be caused by the system restarting"
             });
             return;
-        } else if (codeDict.get(state) == PENDING_STATE) {
-            //codeDict.set(state, code);
-            let toenPromise = GetToken(code);
-            toenPromise.then((token) => {
+        } else if ((codeDictState as pending).verifier) {
+            let verifier = (<pending>codeDictState).verifier;
+            let tokenPromise = GetToken(code,verifier);
+            tokenPromise.then((token) => {
                 if (!(token as ResponseMessage).status) {
                     codeDict.set(state, <tokenResponse>token);
                     res.status(200).json({
@@ -131,7 +136,7 @@ export class AuthedController {
                 return;
             });
             
-        } else if(codeDict.get(state) == CANCELED_STATE){
+        } else if(codeDictState == CANCELED_STATE){
             res.status(403).json({
                 status: ERROR_STATUS,
                 message: "authentication for this state has been canceled already, you might want to retry"

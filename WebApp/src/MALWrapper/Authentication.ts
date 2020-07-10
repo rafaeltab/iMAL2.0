@@ -21,18 +21,15 @@ type ErrorResponse = {
     message: string
 }
 
-export async function GetToken(code: string) : Promise<ResponseMessage | tokenResponse> {
-    let url = `https://myanimelist.net/v1/oauth2/token`;
-    let verifier = getPKCE(128);
-   
+export async function GetToken(code: string, state:string) : Promise<ResponseMessage | tokenResponse> {
+    let url = `https://myanimelist.net/v1/oauth2/token`;   
     try {
-        Logger.Info(`client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=authorization_code&code=${code}&code_verifier=${verifier}`);
         let data = await fetch(url, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: `client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=authorization_code&code=${code}&code_verifier=${verifier}`
+            body: `client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=authorization_code&code=${code}&code_verifier=${state}`
         });
         
         try {
