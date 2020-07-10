@@ -1,9 +1,11 @@
 import ExampleServer from './ExampleServer';
+import { Logger } from '@overnightjs/logger';
 
-let PORT : number = 3000;
-if (process.env.PORT) {
-  PORT = parseInt(process.env.PORT);
+let PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+
+if (PORT === 3000) {
+  Logger.Warn(`env port is ${process.env.PORT}`);
 }
 
 const exampleServer = new ExampleServer();
-exampleServer.start(3000);
+exampleServer.start(PORT);
