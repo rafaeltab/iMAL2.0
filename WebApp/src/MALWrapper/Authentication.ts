@@ -2,6 +2,7 @@ import { CLIENT_ID, CLIENT_SECRET, ERROR_STATUS, SUCCESS_STATUS } from '../helpe
 import { getPKCE, getUUID, isUUID } from '../helpers/randomCodes';
 import { Logger } from '@overnightjs/logger';
 import fetch from 'node-fetch';
+import e = require('express');
 
 export type tokenResponse = {
     token_type: "Bearer",
@@ -15,6 +16,11 @@ export type ResponseMessage = {
     message: any
 }
 
+type ErrorResponse = {
+    error: string,
+    message: string
+}
+
 export async function GetToken(code: string) : Promise<ResponseMessage | tokenResponse> {
     let url = `https://myanimelist.net/v1/oauth2/token`;
     let verifier = getPKCE(128);
@@ -23,16 +29,22 @@ export async function GetToken(code: string) : Promise<ResponseMessage | tokenRe
         let data = await fetch(url, {
             method: "POST",
             headers: {
-                'Authorization': `Basic ${CLIENT_SECRET}`,
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: `client_id=${CLIENT_ID}&grant_type=authorization_code&code=${code}&code_verifier=${verifier}`
+            body: `client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=authorization_code&code=${code}&code_verifier=${verifier}`
         });
 
         try {
-            let jsData: tokenResponse = await data.json();
-    
-            return jsData;
+            let jsData: tokenResponse | ErrorResponse= await data.json();
+            if ((jsData as ErrorResponse).error) {
+                let jsErr: ErrorResponse = <ErrorResponse>jsData;
+                return {
+                    status: ERROR_STATUS,
+                    message: `error: ${jsErr.error} message: ${jsErr.message}`
+                }
+            } else {
+                return <tokenResponse>jsData;
+            }            
         } catch (e) {
             return {
                 status: ERROR_STATUS,
