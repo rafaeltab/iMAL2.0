@@ -26,6 +26,7 @@ export async function GetToken(code: string) : Promise<ResponseMessage | tokenRe
     let verifier = getPKCE(128);
    
     try {
+        Logger.Info(`client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=authorization_code&code=${code}&code_verifier=${verifier}`);
         let data = await fetch(url, {
             method: "POST",
             headers: {
@@ -33,7 +34,7 @@ export async function GetToken(code: string) : Promise<ResponseMessage | tokenRe
             },
             body: `client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=authorization_code&code=${code}&code_verifier=${verifier}`
         });
-
+        
         try {
             let jsData: tokenResponse | ErrorResponse= await data.json();
             if ((jsData as ErrorResponse).error) {
