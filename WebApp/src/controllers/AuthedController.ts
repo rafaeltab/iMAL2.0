@@ -7,10 +7,11 @@ import { CLIENT_ID, CLIENT_SECRET, ERROR_STATUS, SUCCESS_STATUS } from '../helpe
 
 const PENDING_STATE = "pending";
 const CANCELED_STATE = "canceled";
+const ERRORED_STATE = "error";
 
 
 
-let codeDict: Map<string, tokenResponse | "pending" | "canceled"> = new Map<string, tokenResponse | "pending" | "canceled">(); 
+let codeDict: Map<string, tokenResponse | "pending" | "canceled" | "error"> = new Map<string, tokenResponse | "pending" | "canceled" | "error">(); 
 
 
 @Controller('authed')
@@ -68,18 +69,7 @@ export class AuthedController {
             return;
         }
 
-        //No code defined
-        if (!req.query.code) {
-            Logger.Warn("missing parameter in request to /authed");
-            res.status(422).json({
-                status: ERROR_STATUS,
-                message: "you are missing a required parameter"
-            });
-            return;
-        }
-
         let state: string = String(req.query.state);
-        let code: string = String(req.query.code);
 
         //state wrong format
         if (!isUUID(state)) {
@@ -91,10 +81,25 @@ export class AuthedController {
             return;
         }
 
+        //No code defined
+        if (!req.query.code) {
+            Logger.Warn("missing parameter in request to /authed");
+            codeDict.set(state, ERRORED_STATE);
+            res.status(422).json({
+                status: ERROR_STATUS,
+                message: "you are missing a required parameter"
+            });
+            return;
+        }
+
+        
+        let code: string = String(req.query.code);        
+
         const codeRe = /[0-9a-z]{700,1300}/ 
         //code wrong format
         if (!code.match(codeRe)) {
             Logger.Warn("Code parameter was of incorrect format in request to /authed");
+            codeDict.set(state, ERRORED_STATE);
             res.status(422).json({
                 status: ERROR_STATUS,
                 message:"There is a problem with one of your parameters"
@@ -111,18 +116,21 @@ export class AuthedController {
             return;
         } else if (codeDict.get(state) == PENDING_STATE) {
             //codeDict.set(state, code);
-            let token = GetToken(code);
-            //TODO doesnt correctly prevent errors from making it into codeDict
-            if (!(token as ResponseMessage).status) {
-                codeDict.set(state, <tokenResponse>token);
-                res.status(200).json({
-                    status: SUCCESS_STATUS,
-                    message: "Authentication successfull"
-                });
-            } else {
-                res.status(500).json(<ResponseMessage>token);
-            }           
-            return;
+            let toenPromise = GetToken(code);
+            toenPromise.then((token) => {
+                if (!(token as ResponseMessage).status) {
+                    codeDict.set(state, <tokenResponse>token);
+                    res.status(200).json({
+                        status: SUCCESS_STATUS,
+                        message: "Authentication successfull"
+                    });
+                } else {
+                    codeDict.set(state, ERRORED_STATE);
+                    res.status(500).json(<ResponseMessage>token);
+                }           
+                return;
+            });
+            
         } else if(codeDict.get(state) == CANCELED_STATE){
             res.status(403).json({
                 status: ERROR_STATUS,

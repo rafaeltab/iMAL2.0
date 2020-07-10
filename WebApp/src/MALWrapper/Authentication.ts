@@ -15,35 +15,34 @@ export type ResponseMessage = {
     message: any
 }
 
-export function GetToken(code: string) : ResponseMessage | tokenResponse {
+export async function GetToken(code: string) : Promise<ResponseMessage | tokenResponse> {
     let url = `https://myanimelist.net/v1/oauth2/token`;
     let verifier = getPKCE(128);
-    fetch(url,{
-        method: "POST",
-        headers: {
-            'Authorization': `Basic ${CLIENT_SECRET}`,
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `client_id=${CLIENT_ID}&grant_type=authorization_code&code=${code}&code_verifier=${verifier}`
-    }).then((data) => {
-        data.json().then((data: tokenResponse) => {
-            return data;
-        }).catch((e:any) => {
-            Logger.Err("Could not parse JSON from data received by MAL API");
+   
+    try {
+        let data = await fetch(url, {
+            method: "POST",
+            headers: {
+                'Authorization': `Basic ${CLIENT_SECRET}`,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `client_id=${CLIENT_ID}&grant_type=authorization_code&code=${code}&code_verifier=${verifier}`
+        });
+
+        try {
+            let jsData: tokenResponse = await data.json();
+    
+            return jsData;
+        } catch (e) {
             return {
                 status: ERROR_STATUS,
-                message: "Error with data received from MyAnimeList"
+                message: "Error connecting with MyAnimeList"
             }
-        });        
-    }).catch((e:any) => {
-        Logger.Err("Could not connect to MAL API");
+        }
+    } catch (e) {
         return {
             status: ERROR_STATUS,
             message: "Error connecting with MyAnimeList"
-        }
-    });
-    return {
-        status: ERROR_STATUS,
-        message: "not sure what happened"
-    };
+        };
+    }
 }
