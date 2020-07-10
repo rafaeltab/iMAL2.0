@@ -1,6 +1,7 @@
 import { CLIENT_ID, CLIENT_SECRET, ERROR_STATUS, SUCCESS_STATUS } from '../helpers/GLOBALVARS';
 import { getPKCE, getUUID, isUUID } from '../helpers/randomCodes';
 import { Logger } from '@overnightjs/logger';
+import fetch from 'node-fetch';
 
 export type tokenResponse = {
     token_type: "Bearer",
@@ -24,17 +25,17 @@ export function GetToken(code: string) : ResponseMessage | tokenResponse {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: `client_id=${CLIENT_ID}&grant_type=authorization_code&code=${code}&code_verifier=${verifier}`
-    }).then((data : Response) => {
+    }).then((data) => {
         data.json().then((data: tokenResponse) => {
             return data;
-        }).catch((e) => {
+        }).catch((e:any) => {
             Logger.Err("Could not parse JSON from data received by MAL API");
             return {
                 status: ERROR_STATUS,
                 message: "Error with data received from MyAnimeList"
             }
         });        
-    }).catch((e) => {
+    }).catch((e:any) => {
         Logger.Err("Could not connect to MAL API");
         return {
             status: ERROR_STATUS,
