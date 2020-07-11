@@ -2,7 +2,6 @@ import { CLIENT_ID, CLIENT_SECRET, ERROR_STATUS, SUCCESS_STATUS } from '../helpe
 import { getPKCE, getUUID, isUUID } from '../helpers/randomCodes';
 import { Logger } from '@overnightjs/logger';
 import fetch from 'node-fetch';
-import e = require('express');
 
 export type tokenResponse = {
     token_type: "Bearer",
@@ -21,7 +20,7 @@ type ErrorResponse = {
     message: string
 }
 
-export async function GetToken(code: string, state:string) : Promise<ResponseMessage | tokenResponse> {
+export async function GetToken(code: string, verifier:string) : Promise<ResponseMessage | tokenResponse> {
     let url = `https://myanimelist.net/v1/oauth2/token`;   
     try {
         let data = await fetch(url, {
@@ -29,7 +28,7 @@ export async function GetToken(code: string, state:string) : Promise<ResponseMes
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: `client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=authorization_code&code=${code}&code_verifier=${state}`
+            body: `client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=authorization_code&code=${code}&code_verifier=${verifier}`
         });
         
         try {
