@@ -2,6 +2,7 @@ import * as bodyParser from 'body-parser';
 import * as controllers from './controllers';
 import { Server } from '@overnightjs/core';
 import { Logger } from '@overnightjs/logger';
+import { Server as Serve } from 'http'; 
 
 class ExampleServer extends Server {
 
@@ -25,13 +26,14 @@ class ExampleServer extends Server {
         super.addControllers(ctlrInstances);
     }
 
-    public start(port: number): void {
+    public start(port: number): Serve {
         this.app.get('*', (req, res) => {
             res.send(this.SERVER_STARTED + port);
         });
-        this.app.listen(port,"0.0.0.0", () => {
+        return this.app.listen(port, "0.0.0.0", () => {
             Logger.Imp(this.SERVER_STARTED + port);
         });
+        
     }
 }
 
