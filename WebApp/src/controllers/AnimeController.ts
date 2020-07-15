@@ -7,12 +7,13 @@ import { getDict } from './AuthedController';
 import { ERR } from '@overnightjs/logger/lib/constants';
 import { GetSuggested } from '../MALWrapper/Anime/Suggestions';
 import { ErrorResponse, isErrResp, tokenResponse, isTokenResponse } from '../MALWrapper/BasicTypes';
+import { GetDetails } from '../MALWrapper/Anime/Details';
 
 //Main controller
 @Controller('anime')
 export class AnimeController {
     @Get("suggestions")
-    private logCodeDict(req: Request, res: Response) {        
+    private Suggestions(req: Request, res: Response) {        
         let codeDict = getDict();
 
         //state is one of the paramaters
@@ -52,6 +53,9 @@ export class AnimeController {
         if (req.query.limit) {
             try {
                 limit = Number.parseInt(<string>req.query.limit);
+                if (limit > 100) {
+                    limit = 100;
+                }
             } catch (e) {
                 
             }
@@ -92,5 +96,104 @@ export class AnimeController {
             });
         }
         
+    }
+
+    @Get("search")
+    private search(req: Request, res: Response) {
+        //TODO implement
+        res.status(404).json({
+            status: ERROR_STATUS,
+            message: "not implemented"
+        });
+    }
+
+    @Get("details")
+    private details(req: Request, res: Response) {
+        let codeDict = getDict();
+
+        //state is one of the paramaters
+        if (!req.query.state) {
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "Missing parameter status"
+            });
+            return;
+        }
+
+        let state: string = String(req.query.state);
+
+        //state is valid format
+        if (!isUUID(state)) {
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "State incorrect format"
+            });
+            return;
+        }
+
+        //state exists
+        if (!codeDict.has(state)) {
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "Incorrect State"
+            });
+            return;
+        }
+
+        let currStat = codeDict.get(state);        
+        let animeid = 1;
+        if (req.query.animeid) {
+            try {
+                animeid = parseInt(<string>req.query.animeid)
+            } catch (e) {
+                
+            }
+        }
+        //TODO implement fields
+
+        //everything is good
+        if (isTokenResponse(currStat)) {
+            GetDetails(animeid, currStat).then((response) => {
+                let result = response.response;
+                if (isErrResp(result)) {
+                    res.status(500).json(result);
+                } else {
+                    codeDict.set(state, result.tokens);
+                    res.status(200).json(result.response);
+                }
+                return;
+            //Maybe it isnt :()
+            }).catch(() => {
+                res.status(500).json({
+                    status: ERROR_STATUS,
+                    message: "A server error occurred"
+                });
+            });
+        //not ok
+        } else {
+            Logger.Info(JSON.stringify(currStat));
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "state has no tokens, authenticate properly first"
+            });
+        }
+    }
+
+    @Get("seasonal")
+    private seasonal(req: Request, res: Response) {
+        //TODO implement
+        res.status(404).json({
+            status: ERROR_STATUS,
+            message: "not implemented"
+        });
+    }
+
+    @Get("ranking")
+    private ranking(req: Request, res: Response) {
+        //TODO implement
+        res.status(404).json({
+            status: ERROR_STATUS,
+            message: "not implemented"
+        });
     }
 }

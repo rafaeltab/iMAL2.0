@@ -15,11 +15,30 @@ export type tokenResponse = {
     refresh_token: string
 }
 
+export type ListPagination<T> = {
+    data: T[],
+    paging: {
+        next: string,
+        previous? : string | undefined
+    }
+}
+
 export type RequestResponse<T> = {
     response: {
         response: T,
         tokens: tokenResponse
     } | ErrorResponse
+}
+
+export type AnimeNode = {
+    node: {
+        id: number,
+        title: string,
+        main_picture: {
+            medium: string,
+            large: string
+        }
+    }
 }
 
 export function isTokenResponse(obj: any): obj is tokenResponse{
