@@ -6,7 +6,7 @@ import { CLIENT_ID, CLIENT_SECRET, ERROR_STATUS, SUCCESS_STATUS } from '../helpe
 import { getDict } from './AuthedController';
 import { ERR } from '@overnightjs/logger/lib/constants';
 import { GetSuggested } from '../MALWrapper/Anime/Suggestions';
-import { ErrorResponse, isErrResp, tokenResponse } from '../MALWrapper/BasicTypes';
+import { ErrorResponse, isErrResp, tokenResponse, isTokenResponse } from '../MALWrapper/BasicTypes';
 
 //Main controller
 @Controller('anime')
@@ -47,10 +47,10 @@ export class AnimeController {
         let currStat = codeDict.get(state);
 
         //everything is good
-        if ((currStat as tokenResponse).token_type) {
+        if (isTokenResponse(currStat)) {
             //TODO implement refreshing tokens
-            let tokenStat = <tokenResponse>currStat;
-            GetSuggested(5, 0, tokenStat).then((response) => {
+            
+            GetSuggested(5, 0, currStat).then((response) => {
                 let result = response.response;
                 if (isErrResp(result)) {
                     res.status(500).json(result);
@@ -58,12 +58,20 @@ export class AnimeController {
                     codeDict.set(state, result.tokens);
                     res.status(200).json(result.response);
                 }
+                return;
+            }).catch(() => {
+                res.status(500).json({
+                    status: ERROR_STATUS,
+                    message: "A server error occurred"
+                });
             });    
+        } else {
+            Logger.Info(JSON.stringify(currStat));
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "state has no tokens, authenticate properly first"
+            });
         }
-
-        res.status(403).json({
-            status: ERROR_STATUS,
-            message: "state has no tokens, authenticate properly first"
-        });
+        
     }
 }
