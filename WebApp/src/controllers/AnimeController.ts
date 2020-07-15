@@ -53,19 +53,17 @@ export class AnimeController {
             GetSuggested(5, 0, tokenStat).then((response) => {
                 let result = response.response;
                 if (isErrResp(result)) {
-
+                    res.status(500).json(result);
                 } else {
                     codeDict.set(state, result.tokens);
                     res.status(200).json(result.response);
-
                 }
-            });
-            
-
+            });    
         }
 
-        
-
-
+        res.status(403).json({
+            status: ERROR_STATUS,
+            message: "state has no tokens, authenticate properly first"
+        });
     }
 }
