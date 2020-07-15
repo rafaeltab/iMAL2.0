@@ -59,12 +59,12 @@ export class AnimeController {
                     res.status(200).json(result.response);
                 }
                 return;
-            }).catch(() => {
+            })/*.catch(() => {
                 res.status(500).json({
                     status: ERROR_STATUS,
                     message: "A server error occurred"
                 });
-            });    
+            });    */
         } else {
             Logger.Info(JSON.stringify(currStat));
             res.status(403).json({
