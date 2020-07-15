@@ -11,7 +11,17 @@ class ExampleServer extends Server {
     constructor() {
         super(true);
         this.app.use(bodyParser.json());
-        this.app.use(bodyParser.urlencoded({extended: true}));
+        this.app.use(bodyParser.urlencoded({ extended: true }));
+        /*this.app.use((req, res, next) => {
+            if (process.env.NODE_ENV === 'production') {
+                if (req.headers['x-forwarded-proto'] !== 'https')
+                    // the statement for performing our redirection
+                    return res.redirect('https://' + req.headers.host + req.url);
+                else
+                    return next();
+            } else
+                return next();
+        });*/
         this.setupControllers();
     }
 

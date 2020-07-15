@@ -2,9 +2,11 @@ import { Request, Response } from 'express';
 import { Controller, Middleware, Get, Put, Post, Delete } from '@overnightjs/core';
 import { Logger } from '@overnightjs/logger';
 import { getPKCE, getUUID, isUUID } from '../helpers/randomCodes';
-import { tokenResponse, GetToken, ResponseMessage } from '../MALWrapper/Authentication';
+import { GetToken, ResponseMessage } from '../MALWrapper/Authentication';
 import { CLIENT_ID, CLIENT_SECRET, ERROR_STATUS, SUCCESS_STATUS } from '../helpers/GLOBALVARS';
 import * as fs from 'fs';
+import * as fetch from 'node-fetch';
+import { tokenResponse } from 'src/MALWrapper/BasicTypes';
 
 //Different states that can go in the codeDict
 const PENDING_STATE = "pending";
@@ -85,6 +87,10 @@ function restoreDict() {
             }             
         });
     }    
+}
+
+export function getDict(): Map<string, tokenResponse | pending | "canceled" | "error">{
+    return codeDict;
 }
 
 export function SaveDict(test: string) {
