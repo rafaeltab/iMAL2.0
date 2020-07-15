@@ -6,7 +6,7 @@ import { Logger } from '@overnightjs/logger';
 
 export type RefreshType = {
     tokens: tokenResponse,
-    response: fetch.Response
+    responseJson: any
 }
 
 export async function RefreshFetch(tokens: tokenResponse, url: fetch.RequestInfo, init?: fetch.RequestInit | undefined): Promise<RefreshType> {
@@ -30,7 +30,7 @@ export async function RefreshFetch(tokens: tokenResponse, url: fetch.RequestInfo
                 //return new result
                 return {
                     tokens: refresh,
-                    response: res2
+                    responseJson: res2.json()
                 }
             }
         }
@@ -39,12 +39,12 @@ export async function RefreshFetch(tokens: tokenResponse, url: fetch.RequestInfo
     //return old tokens + response in case of any errors
     return {
         tokens: tokens,
-        response: res
+        responseJson: jsonRes
     }
 }
 
 //updata a request init with new tokens
-function addTokenHeader(token: string, init?: fetch.RequestInit | undefined) : fetch.RequestInit {
+function addTokenHeader(token: string, init?: fetch.RequestInit | undefined): fetch.RequestInit {
     if (!init) {
         return {
             headers: {
