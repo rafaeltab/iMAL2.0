@@ -46,11 +46,28 @@ export class AnimeController {
 
         let currStat = codeDict.get(state);
 
+        let limit;
+        let offset;
+        //check if limit is a parameter (non-breaking)
+        if (req.query.limit) {
+            try {
+                limit = Number.parseInt(<string>req.query.limit);
+            } catch (e) {
+                
+            }
+        }
+        //check if offset is a parameter (non-breaking)
+        if (req.query.offset) {
+            try {
+                offset = Number.parseInt(<string>req.query.offset);
+            } catch (e) {
+                
+            }
+        }
+
         //everything is good
         if (isTokenResponse(currStat)) {
-            //TODO implement refreshing tokens
-            
-            GetSuggested(5, 0, currStat).then((response) => {
+            GetSuggested(limit, offset, currStat).then((response) => {
                 let result = response.response;
                 if (isErrResp(result)) {
                     res.status(500).json(result);
@@ -59,12 +76,14 @@ export class AnimeController {
                     res.status(200).json(result.response);
                 }
                 return;
-            })/*.catch(() => {
+            //Maybe it isnt :()
+            }).catch(() => {
                 res.status(500).json({
                     status: ERROR_STATUS,
                     message: "A server error occurred"
                 });
-            });    */
+            });
+        //not ok
         } else {
             Logger.Info(JSON.stringify(currStat));
             res.status(403).json({
