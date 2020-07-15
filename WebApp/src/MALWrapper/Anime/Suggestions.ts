@@ -22,7 +22,7 @@ type ResponseNode = {
 
 
 export async function GetSuggested(limit: number | undefined, offset: number, tokens: tokenResponse): Promise<RequestResponse<ResponseType>> {
-    try {
+    //try {
         let url = `https://api.myanimelist.net/v2/anime/suggestions?limit=${limit ? limit : 10}&offset=${offset ? offset : 0}`;
         let data = await RefreshFetch(tokens,url, {
             method: "GET",
@@ -40,7 +40,7 @@ export async function GetSuggested(limit: number | undefined, offset: number, to
         }
     
         return { response: { response: (json as ResponseType), tokens: newTokens } };
-    } catch (e) {
+    /*} catch (e) {
         Logger.Info(JSON.stringify(e))
         return {
             response: {
@@ -48,5 +48,5 @@ export async function GetSuggested(limit: number | undefined, offset: number, to
                 message: "Error connecting to MyAnimeList"
             }
         }
-    }
+    }*/
 }
