@@ -21,7 +21,7 @@ type ResponseNode = {
 }
 
 
-export async function GetSuggested(limit: number | undefined, offset: number, tokens: tokenResponse): Promise<RequestResponse<ResponseType>> {
+export async function GetSuggested(limit: number | undefined, offset: number|undefined, tokens: tokenResponse): Promise<RequestResponse<ResponseType>> {
     //try {
         let url = `https://api.myanimelist.net/v2/anime/suggestions?limit=${limit ? limit : 10}&offset=${offset ? offset : 0}`;
         let data = await RefreshFetch(tokens,url, {
