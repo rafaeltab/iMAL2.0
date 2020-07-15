@@ -1,5 +1,6 @@
 import { ResponseMessage, ErrorResponse, tokenResponse, RequestResponse } from "../../MALWrapper/BasicTypes";
 import { RefreshFetch } from '../../helpers/refresher';
+import { Logger } from '@overnightjs/logger';
 
 type ResponseType = {
     data: ResponseNode[],
@@ -40,6 +41,7 @@ export async function GetSuggested(limit: number | undefined, offset: number, to
     
         return { response: { response: (json as ResponseType), tokens: newTokens } };
     } catch (e) {
+        Logger.Info(JSON.stringify(e))
         return {
             response: {
                 error: "connection",
