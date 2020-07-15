@@ -34,7 +34,7 @@ export async function GetSuggested(limit: number | undefined, offset: number, to
 
         let newTokens = data.tokens;
 
-        let json: ResponseType | ErrorResponse = await data.response.json();
+        let json: ResponseType | ErrorResponse = data.responseJson;
         if ((json as ErrorResponse).error) {
             return { response: <ErrorResponse>json };
         }

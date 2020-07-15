@@ -16,7 +16,10 @@ export type tokenResponse = {
 }
 
 export type RequestResponse<T> = {
-    response: {response:T,tokens:tokenResponse} | ErrorResponse
+    response: {
+        response: T,
+        tokens: tokenResponse
+    } | ErrorResponse
 }
 
 export function isTokenResponse(obj: any): obj is tokenResponse{
