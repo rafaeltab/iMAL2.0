@@ -8,7 +8,7 @@ import { GetSuggested } from '../MALWrapper/Anime/Suggestions';
 import { isErrResp, isTokenResponse } from '../MALWrapper/BasicTypes';
 import { GetDetails } from '../MALWrapper/Anime/Details';
 import { GetRanking } from '../MALWrapper/Anime/Ranking';
-import { GetSearch } from 'src/MALWrapper/Anime/Search';
+import { GetSearch } from '../MALWrapper/Anime/Search';
 
 //Main controller
 @Controller('anime')
