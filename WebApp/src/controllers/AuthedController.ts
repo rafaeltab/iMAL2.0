@@ -5,8 +5,8 @@ import { getPKCE, getUUID, isUUID } from '../helpers/randomCodes';
 import { GetToken, ResponseMessage } from '../MALWrapper/Authentication';
 import { CLIENT_ID, CLIENT_SECRET, ERROR_STATUS, SUCCESS_STATUS } from '../helpers/GLOBALVARS';
 import * as fs from 'fs';
-import * as fetch from 'node-fetch';
-import { tokenResponse } from 'src/MALWrapper/BasicTypes';
+import { tokenResponse } from '../MALWrapper/BasicTypes';
+import { DoState } from '../helpers/statechecker';
 
 //Different states that can go in the codeDict
 const PENDING_STATE = "pending";
@@ -18,7 +18,7 @@ const CANCELED_TIMEOUT = 60 * 1000;
 const ERRORED_TIMEOUT = 60 * 1000;
 
 //special state that also saves the code verifier
-type pending = {
+export type pending = {
     state: "pending",
     verifier: string
 }
@@ -148,15 +148,13 @@ export class AuthedController {
     //endpoint that gets called when the user clicks either of the buttons on mal
     @Get()
     private authed(req: Request, res: Response) {
-        //No state defined
-        if (!req.query.state) {
-            Logger.Warn("missing parameter in request to /authed");
-            res.status(422).json({
-                status: ERROR_STATUS,
-                message: "You are missing a required parameter"
-            });
+        let codeDict = getDict();
+        let stat = DoState(req, res, codeDict);
+        if (typeof stat === "boolean") {
             return;
         }
+        let state = <string>stat;
+        let currStat = codeDict.get(state);
 
         //user canceled or some other error we don't know of
         if (req.query.error) {
@@ -167,19 +165,6 @@ export class AuthedController {
             res.status(200).json({
                 status: SUCCESS_STATUS,
                 message: `authentication for ${state} has been canceled`
-            });
-            return;
-        }
-
-        //stringify the state
-        let state: string = String(req.query.state);
-
-        //state wrong format
-        if (!isUUID(state)) {
-            Logger.Warn("State parameter was of incorrect format in request to /authed");
-            res.status(422).json({
-                status: ERROR_STATUS,
-                message:"There is a problem with one of your parameters"
             });
             return;
         }
@@ -209,23 +194,13 @@ export class AuthedController {
             });
             return;
         }
-        
-        //put the codeDict in a variable for efficieny
-        let codeDictState = codeDict.get(state);
 
         //no parameter issues so onto the rest
-
-        //state doesn't exist in the list meaning the user either timed out or something weird happend
-        if (!codeDict.has(state)) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "Authentication needs to be started first. This error might be caused by the system restarting"
-            });
-            return;
+        
         //everything is 👍
-        } else if ((codeDictState as pending).verifier) {
+        if ((currStat as pending).verifier) {
             //get the verifier
-            let verifier = (<pending>codeDictState).verifier;
+            let verifier = (<pending>currStat).verifier;
 
             //get the token from the MAL server
             let tokenPromise = GetToken(code,verifier);
@@ -246,14 +221,14 @@ export class AuthedController {
             });
         
         //the state was already canceled
-        } else if(codeDictState == CANCELED_STATE){
+        } else if(currStat == CANCELED_STATE){
             res.status(403).json({
                 status: ERROR_STATUS,
                 message: "authentication for this state has been canceled already, you might want to retry"
             });
             return;
         //the code was already saved this is very weird
-        } else if (codeDictState == ERRORED_STATE) {
+        } else if (currStat == ERRORED_STATE) {
             res.status(403).json({
                 status: ERROR_STATUS,
                 message: "code errored"
