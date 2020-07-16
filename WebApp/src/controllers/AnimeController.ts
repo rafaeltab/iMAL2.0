@@ -11,6 +11,7 @@ import { GetRanking } from '../MALWrapper/Anime/Ranking';
 import { GetSearch } from '../MALWrapper/Anime/Search';
 import { parse } from 'path';
 import { GetSeasonal } from '../MALWrapper/Anime/Seasonal';
+import { DoState } from '../helpers/statechecker';
 
 //Main controller
 @Controller('anime')
@@ -18,38 +19,13 @@ export class AnimeController {
     @Get("suggestions")
     private Suggestions(req: Request, res: Response) {        
         let codeDict = getDict();
-
-        //state is one of the paramaters
-        if (!req.query.state) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "Missing parameter status"
-            });
+        let stat = DoState(req, res, codeDict);
+        if (typeof stat === "boolean") {
             return;
         }
-
-        let state: string = String(req.query.state);
-
-        //state is valid format
-        if (!isUUID(state)) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "State incorrect format"
-            });
-            return;
-        }
-
-        //state exists
-        if (!codeDict.has(state)) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "Incorrect State"
-            });
-            return;
-        }
-
+        let state = <string>stat;
         let currStat = codeDict.get(state);
-
+        
         let limit;
         let offset;
         //check if limit is a parameter (non-breaking)
@@ -104,36 +80,11 @@ export class AnimeController {
     @Get("search")
     private search(req: Request, res: Response) {
         let codeDict = getDict();
-
-        //state is one of the paramaters
-        if (!req.query.state) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "Missing parameter status"
-            });
+        let stat = DoState(req, res, codeDict);
+        if (typeof stat === "boolean") {
             return;
         }
-
-        let state: string = String(req.query.state);
-
-        //state is valid format
-        if (!isUUID(state)) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "State incorrect format"
-            });
-            return;
-        }
-
-        //state exists
-        if (!codeDict.has(state)) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "Incorrect State"
-            });
-            return;
-        }
-
+        let state = <string>stat;
         let currStat = codeDict.get(state);
 
         if (!req.query.query) {
@@ -198,37 +149,13 @@ export class AnimeController {
     @Get("details")
     private details(req: Request, res: Response) {
         let codeDict = getDict();
-
-        //state is one of the paramaters
-        if (!req.query.state) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "Missing parameter status"
-            });
+        let stat = DoState(req, res, codeDict);
+        if (typeof stat === "boolean") {
             return;
         }
-
-        let state: string = String(req.query.state);
-
-        //state is valid format
-        if (!isUUID(state)) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "State incorrect format"
-            });
-            return;
-        }
-
-        //state exists
-        if (!codeDict.has(state)) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "Incorrect State"
-            });
-            return;
-        }
-
-        let currStat = codeDict.get(state);        
+        let state = <string>stat;
+        let currStat = codeDict.get(state);
+        
         let animeid = 1;
         if (req.query.animeid) {
             try {
@@ -237,7 +164,6 @@ export class AnimeController {
                 
             }
         }
-        //TODO implement fields
 
         //everything is good
         if (isTokenResponse(currStat)) {
@@ -269,38 +195,12 @@ export class AnimeController {
 
     @Get("seasonal")
     private seasonal(req: Request, res: Response) {
-
         let codeDict = getDict();
-
-        //state is one of the paramaters
-        if (!req.query.state) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "Missing parameter status"
-            });
+        let stat = DoState(req, res, codeDict);
+        if (typeof stat === "boolean") {
             return;
         }
-
-        let state: string = String(req.query.state);
-
-        //state is valid format
-        if (!isUUID(state)) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "State incorrect format"
-            });
-            return;
-        }
-
-        //state exists
-        if (!codeDict.has(state)) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "Incorrect State"
-            });
-            return;
-        }
-
+        let state = <string>stat;
         let currStat = codeDict.get(state);
 
         let year = 2020;
@@ -311,11 +211,8 @@ export class AnimeController {
                     year = 2020;
                 } else if(year > 2021){
                     year = 2020;
-                }
-                
-            } catch (e) {
-                
-            }
+                }                
+            } catch (e) {}
         }
 
         let season: "summer" | "winter" | "fall" | "spring" = "summer";
@@ -402,37 +299,12 @@ export class AnimeController {
     @Get("ranking")
     private ranking(req: Request, res: Response) {
         let codeDict = getDict();
-
-        //state is one of the paramaters
-        if (!req.query.state) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "Missing parameter status"
-            });
+        let stat = DoState(req, res, codeDict);
+        if (typeof stat === "boolean") {
             return;
         }
-
-        let state: string = String(req.query.state);
-
-        //state is valid format
-        if (!isUUID(state)) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "State incorrect format"
-            });
-            return;
-        }
-
-        //state exists
-        if (!codeDict.has(state)) {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "Incorrect State"
-            });
-            return;
-        }
-
-        let currStat = codeDict.get(state);        
+        let state = <string>stat;
+        let currStat = codeDict.get(state);     
         
         let limit: number|undefined;
         let rankingtype : undefined|"all" | "airing" | "upcoming" | "tv" | "ova" | "movie" | "special" | "bypopularity" | "favorite";
