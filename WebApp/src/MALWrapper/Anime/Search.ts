@@ -1,9 +1,8 @@
 import { ResponseMessage, ErrorResponse, tokenResponse, RequestResponse, AnimeNode, ListPagination } from "../../MALWrapper/BasicTypes";
 import { RefreshFetch } from '../../helpers/refresher';
-import { Logger } from '@overnightjs/logger';
 
-export async function GetSuggested(tokens: tokenResponse, limit?: number | undefined, offset?: number|undefined): Promise<RequestResponse<ListPagination<AnimeNode>>> {
-    let url = `https://api.myanimelist.net/v2/anime/suggestions?limit=${limit ? limit : 10}&offset=${offset ? offset : 0}`;
+export async function GetSearch(tokens: tokenResponse,query : string,limit?: number | undefined, offset?: number|undefined): Promise<RequestResponse<ListPagination<AnimeNode>>> {
+    let url = `https://api.myanimelist.net/v2/anime?q=${query}&limit=${limit ? limit : 10}&offset=${offset ? offset : 0}`;
     let data = await RefreshFetch(tokens,url, {
         method: "GET",
         headers: {
