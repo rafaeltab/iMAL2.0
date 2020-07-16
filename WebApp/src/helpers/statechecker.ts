@@ -9,9 +9,9 @@ export function DoState(req: Request, res: Response, codeDict: Map<string, token
 
         //state is one of the paramaters
         if (!req.query.state) {
-            res.status(403).json({
+            res.status(422).json({
                 status: ERROR_STATUS,
-                message: "Missing parameter status"
+                message: "Missing parameter state"
             });
             return false;
         }
