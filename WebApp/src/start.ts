@@ -21,8 +21,7 @@ function GraceFullStop() {
     httpServe.close(() => {
         SaveDict("10");
         process.exit(0);
-    });
-    
+    });    
 }
 
 let stopping = false;

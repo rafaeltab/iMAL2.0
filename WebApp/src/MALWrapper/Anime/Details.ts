@@ -1,4 +1,4 @@
-import { ResponseMessage, ErrorResponse, tokenResponse, RequestResponse, AnimeNode, ListPagination } from "../../MALWrapper/BasicTypes";
+import { ResponseMessage, ErrorResponse, tokenResponse, RequestResponse, AnimeNode, ListPagination, AnimePicture, AnimeGenre, ListStatus, Season, Studio } from "../../MALWrapper/BasicTypes";
 import { RefreshFetch } from '../../helpers/refresher';
 import { Logger } from '@overnightjs/logger';
 
@@ -37,37 +37,10 @@ export enum Fields {
     statistics
 }
 //#region types
-type AnimePicture = {
-    medium: string,
-    large: string
-}
-
-type AnimeGenre = {
-    id: number,
-    name: string
-}
-
-type ListStatus = {
-    status: "watching" | "completed" | "on_hold" | "dropped" | "plan_to_watch",
-    score: number,
-    num_episodes_watched: number,
-    is_rewatching: boolean,
-    updated_at: string
-}
-
-type Season = {
-    year: number,
-    season: string
-}
 
 type Relation = AnimeNode & {
     relation_type: string,
     relation_type_formatted: string
-}
-
-type Studio = {
-    id: number,
-    name: string
 }
 
 export type Anime = {

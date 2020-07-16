@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
-import { Controller, Middleware, Get, Put, Post, Delete } from '@overnightjs/core';
+import { Controller, Get } from '@overnightjs/core';
 import { Logger } from '@overnightjs/logger';
 import { isUUID } from '../helpers/randomCodes';
-import { CLIENT_ID, CLIENT_SECRET, ERROR_STATUS, SUCCESS_STATUS } from '../helpers/GLOBALVARS';
+import { ERROR_STATUS } from '../helpers/GLOBALVARS';
 import { getDict } from './AuthedController';
-import { ERR } from '@overnightjs/logger/lib/constants';
 import { GetSuggested } from '../MALWrapper/Anime/Suggestions';
-import { ErrorResponse, isErrResp, tokenResponse, isTokenResponse } from '../MALWrapper/BasicTypes';
+import { isErrResp, isTokenResponse } from '../MALWrapper/BasicTypes';
 import { GetDetails } from '../MALWrapper/Anime/Details';
+import { GetRanking } from '../MALWrapper/Anime/Ranking';
 
 //Main controller
 @Controller('anime')
@@ -190,10 +190,88 @@ export class AnimeController {
 
     @Get("ranking")
     private ranking(req: Request, res: Response) {
-        //TODO implement
-        res.status(404).json({
-            status: ERROR_STATUS,
-            message: "not implemented"
-        });
+        let codeDict = getDict();
+
+        //state is one of the paramaters
+        if (!req.query.state) {
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "Missing parameter status"
+            });
+            return;
+        }
+
+        let state: string = String(req.query.state);
+
+        //state is valid format
+        if (!isUUID(state)) {
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "State incorrect format"
+            });
+            return;
+        }
+
+        //state exists
+        if (!codeDict.has(state)) {
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "Incorrect State"
+            });
+            return;
+        }
+
+        let currStat = codeDict.get(state);        
+        
+        let limit: number|undefined;
+        let rankingtype : undefined|"all" | "airing" | "upcoming" | "tv" | "ova" | "movie" | "special" | "bypopularity" | "favorite";
+        let offset: undefined|number;
+        if (req.query.limit) {
+            try {
+                limit = parseInt(<string>req.query.limit);
+            } catch (e) {
+                
+            }
+        }
+        if (req.query.offset) {
+            try {
+                offset = parseInt(<string>req.query.offset);
+            } catch (e) {
+                
+            }
+        }
+        if (req.query.rankingtype) {
+            const possible = ["all", "airing", "upcoming", "tv", "ova", "movie", "special", "bypopularity", "favorite"];
+            if((<string>req.query.rankingtype) in possible) {
+                rankingtype = <"all" | "airing" | "upcoming" | "tv" | "ova" | "movie" | "special" | "bypopularity" | "favorite">req.query.rankingtype;
+            }
+        }
+
+        //everything is good
+        if (isTokenResponse(currStat)) {
+            GetRanking(currStat,rankingtype,limit,offset).then((response) => {
+                let result = response.response;
+                if (isErrResp(result)) {
+                    res.status(500).json(result);
+                } else {
+                    codeDict.set(state, result.tokens);
+                    res.status(200).json(result.response);
+                }
+                return;
+            //Maybe it isnt :()
+            }).catch(() => {
+                res.status(500).json({
+                    status: ERROR_STATUS,
+                    message: "A server error occurred"
+                });
+            });
+        //not ok
+        } else {
+            Logger.Info(JSON.stringify(currStat));
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "state has no tokens, authenticate properly first"
+            });
+        }
     }
 }

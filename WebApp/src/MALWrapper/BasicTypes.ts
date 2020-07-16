@@ -15,6 +15,24 @@ export type tokenResponse = {
     refresh_token: string
 }
 
+export type AnimePicture = {
+    medium: string,
+    large: string
+}
+
+export type AnimeGenre = {
+    id: number,
+    name: string
+}
+
+export type ListStatus = {
+    status: "watching" | "completed" | "on_hold" | "dropped" | "plan_to_watch",
+    score: number,
+    num_episodes_watched: number,
+    is_rewatching: boolean,
+    updated_at: string
+}
+
 export type ListPagination<T> = {
     data: T[],
     paging: {
@@ -34,11 +52,18 @@ export type AnimeNode = {
     node: {
         id: number,
         title: string,
-        main_picture: {
-            medium: string,
-            large: string
-        }
+        main_picture: AnimePicture
     }
+}
+
+export type Season = {
+    year: number,
+    season: string
+}
+
+export type Studio = {
+    id: number,
+    name: string
 }
 
 export function isTokenResponse(obj: any): obj is tokenResponse{
