@@ -9,6 +9,8 @@ import { isErrResp, isTokenResponse } from '../MALWrapper/BasicTypes';
 import { GetDetails } from '../MALWrapper/Anime/Details';
 import { GetRanking } from '../MALWrapper/Anime/Ranking';
 import { GetSearch } from '../MALWrapper/Anime/Search';
+import { parse } from 'path';
+import { GetSeasonal } from '../MALWrapper/Anime/Seasonal';
 
 //Main controller
 @Controller('anime')
@@ -267,11 +269,131 @@ export class AnimeController {
 
     @Get("seasonal")
     private seasonal(req: Request, res: Response) {
-        //TODO implement
-        res.status(404).json({
-            status: ERROR_STATUS,
-            message: "not implemented"
-        });
+
+        let codeDict = getDict();
+
+        //state is one of the paramaters
+        if (!req.query.state) {
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "Missing parameter status"
+            });
+            return;
+        }
+
+        let state: string = String(req.query.state);
+
+        //state is valid format
+        if (!isUUID(state)) {
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "State incorrect format"
+            });
+            return;
+        }
+
+        //state exists
+        if (!codeDict.has(state)) {
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "Incorrect State"
+            });
+            return;
+        }
+
+        let currStat = codeDict.get(state);
+
+        let year = 2020;
+        if (req.query.year) {
+            try {
+                let year = parseInt(<string>req.query.year);
+                if (year < 1917) {
+                    year = 2020;
+                } else if(year > 2021){
+                    year = 2020;
+                }
+            } catch (e) {
+                
+            }
+        }
+
+        let season: "summer" | "winter" | "fall" | "spring" = "summer";
+        if (req.query.season) {
+            try {
+                let season = <string>req.query.season;
+                const seasons = ["winter", "spring", "summer", "fall"];
+                if (!seasons.includes(season)) {
+                    season = "summer";
+                }
+            } catch (e) {
+                
+            }
+        }
+
+        let sort: "anime_score" | "anime_num_list_users" = "anime_score";
+        if (req.query.sort) {
+            try {
+                const sortScore = ["score", "animescore", "anime_score"];
+                const sortUsers = ["users", "listed", "list_users", "listusers", "anime_num_list_users", "num_list_users", "num_listusers"]
+                if (sortScore.includes(<string>req.query.sort)) {
+                    sort = "anime_score";
+                } else if (sortUsers.includes(<string>req.query.sort)) {
+                    sort = "anime_num_list_users";
+                }
+            } catch (e) {
+                
+            }
+        }
+
+
+        let limit;
+        let offset;
+        //check if limit is a parameter (non-breaking)
+        if (req.query.limit) {
+            try {
+                limit = Number.parseInt(<string>req.query.limit);
+                if (limit > 100) {
+                    limit = 100;
+                }
+            } catch (e) {
+                
+            }
+        }
+        //check if offset is a parameter (non-breaking)
+        if (req.query.offset) {
+            try {
+                offset = Number.parseInt(<string>req.query.offset);
+            } catch (e) {
+                
+            }
+        }
+
+        //everything is good
+        if (isTokenResponse(currStat)) {
+            GetSeasonal(currStat,sort,year,season, limit, offset).then((response) => {
+                let result = response.response;
+                if (isErrResp(result)) {
+                    res.status(500).json(result);
+                } else {
+                    codeDict.set(state, result.tokens);
+                    res.status(200).json(result.response);
+                }
+                return;
+            //Maybe it isnt :()
+            }).catch(() => {
+                res.status(500).json({
+                    status: ERROR_STATUS,
+                    message: "A server error occurred"
+                });
+            });
+        //not ok
+        } else {
+            Logger.Info(JSON.stringify(currStat));
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "state has no tokens, authenticate properly first"
+            });
+        }
     }
 
     @Get("ranking")
