@@ -306,12 +306,13 @@ export class AnimeController {
         let year = 2020;
         if (req.query.year) {
             try {
-                let year = parseInt(<string>req.query.year);
+                year = parseInt(<string>req.query.year);
                 if (year < 1917) {
                     year = 2020;
                 } else if(year > 2021){
                     year = 2020;
                 }
+                
             } catch (e) {
                 
             }
@@ -320,10 +321,12 @@ export class AnimeController {
         let season: "summer" | "winter" | "fall" | "spring" = "summer";
         if (req.query.season) {
             try {
-                let season = <string>req.query.season;
+                let tempSeason = <string>req.query.season;
                 const seasons = ["winter", "spring", "summer", "fall"];
-                if (!seasons.includes(season)) {
+                if (!seasons.includes(tempSeason)) {
                     season = "summer";
+                } else {
+                    season = <"summer" | "winter" | "fall" | "spring"> tempSeason;
                 }
             } catch (e) {
                 
