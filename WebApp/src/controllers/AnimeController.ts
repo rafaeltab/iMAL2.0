@@ -243,9 +243,11 @@ export class AnimeController {
         if (req.query.rankingtype) {
             Logger.Info(req.query.rankingtype)
             const possible = ["all", "airing", "upcoming", "tv", "ova", "movie", "special", "bypopularity", "favorite"];
-            if ((<string>req.query.rankingtype) in possible) {
+            if (possible.includes(<string>req.query.rankingtype)) {
                 Logger.Info("Jay")
                 rankingtype = <"all" | "airing" | "upcoming" | "tv" | "ova" | "movie" | "special" | "bypopularity" | "favorite">req.query.rankingtype;
+            } else {
+                Logger.Info(<string>req.query.rankingtype);
             }
         }
 
