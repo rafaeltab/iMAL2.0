@@ -8,6 +8,7 @@ import { GetSuggested } from '../MALWrapper/Anime/Suggestions';
 import { isErrResp, isTokenResponse } from '../MALWrapper/BasicTypes';
 import { GetDetails } from '../MALWrapper/Anime/Details';
 import { GetRanking } from '../MALWrapper/Anime/Ranking';
+import { GetSearch } from 'src/MALWrapper/Anime/Search';
 
 //Main controller
 @Controller('anime')
@@ -71,7 +72,7 @@ export class AnimeController {
 
         //everything is good
         if (isTokenResponse(currStat)) {
-            GetSuggested(limit, offset, currStat).then((response) => {
+            GetSuggested(currStat, limit, offset).then((response) => {
                 let result = response.response;
                 if (isErrResp(result)) {
                     res.status(500).json(result);
@@ -100,11 +101,96 @@ export class AnimeController {
 
     @Get("search")
     private search(req: Request, res: Response) {
-        //TODO implement
-        res.status(404).json({
-            status: ERROR_STATUS,
-            message: "not implemented"
-        });
+        let codeDict = getDict();
+
+        //state is one of the paramaters
+        if (!req.query.state) {
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "Missing parameter status"
+            });
+            return;
+        }
+
+        let state: string = String(req.query.state);
+
+        //state is valid format
+        if (!isUUID(state)) {
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "State incorrect format"
+            });
+            return;
+        }
+
+        //state exists
+        if (!codeDict.has(state)) {
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "Incorrect State"
+            });
+            return;
+        }
+
+        let currStat = codeDict.get(state);
+
+        if (!req.query.query) {
+            res.status(422).json({
+                status: ERROR_STATUS,
+                message: "query paramater is missing"
+            });
+            return;
+        }
+
+        let query = <string>req.query.query;
+        let limit;
+        let offset;
+        //check if limit is a parameter (non-breaking)
+        if (req.query.limit) {
+            try {
+                limit = Number.parseInt(<string>req.query.limit);
+                if (limit > 100) {
+                    limit = 100;
+                }
+            } catch (e) {
+                
+            }
+        }
+        //check if offset is a parameter (non-breaking)
+        if (req.query.offset) {
+            try {
+                offset = Number.parseInt(<string>req.query.offset);
+            } catch (e) {
+                
+            }
+        }
+
+        //everything is good
+        if (isTokenResponse(currStat)) {
+            GetSearch(currStat,query,limit, offset).then((response) => {
+                let result = response.response;
+                if (isErrResp(result)) {
+                    res.status(500).json(result);
+                } else {
+                    codeDict.set(state, result.tokens);
+                    res.status(200).json(result.response);
+                }
+                return;
+            //Maybe it isnt :()
+            }).catch(() => {
+                res.status(500).json({
+                    status: ERROR_STATUS,
+                    message: "A server error occurred"
+                });
+            });
+        //not ok
+        } else {
+            Logger.Info(JSON.stringify(currStat));
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "state has no tokens, authenticate properly first"
+            });
+        }
     }
 
     @Get("details")
@@ -153,7 +239,7 @@ export class AnimeController {
 
         //everything is good
         if (isTokenResponse(currStat)) {
-            GetDetails(animeid, currStat).then((response) => {
+            GetDetails( currStat, animeid).then((response) => {
                 let result = response.response;
                 if (isErrResp(result)) {
                     res.status(500).json(result);

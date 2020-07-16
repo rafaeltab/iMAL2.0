@@ -107,7 +107,7 @@ function FieldsToString(fields: Fields[]) : string {
     return fields.map<string>((field, index, array) => { return Fields[field] }).join(", ");
 }
 
-export async function GetDetails(animeid: number, tokens: tokenResponse, fields?: Fields[] | undefined): Promise<RequestResponse<Anime>> {
+export async function GetDetails(tokens: tokenResponse, animeid: number,fields?: Fields[] | undefined): Promise<RequestResponse<Anime>> {
     if (!fields || fields.length === 0) {
         fields = allFields();
     }
