@@ -2,7 +2,6 @@ import ExampleServer from './ExampleServer';
 import { Logger } from '@overnightjs/logger';
 import { SaveDict, RestoreDict } from './controllers/AuthedController';
 
-
 let PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
 if (PORT === 3000) {
