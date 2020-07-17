@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { StyleSheet, FlatList, View } from 'react-native';
-import Header from './components/Header';
+import { StyleSheet, FlatList, View, Button } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AnimeList from './components/AnimeList';
 import Authentication from './APIManager/Authenticate';
 import SeasonalSource from './APIManager/Seasonal';
+import { NavigationStackScreenProps } from 'react-navigation-stack';
+
 
 Authentication.getInstance();
 
-const App = () => {
+const App = ({ navigation } : NavigationStackScreenProps) => {
     const [items, setItems] = useState([
         {
             key: "Summer 2020:",
@@ -39,21 +40,14 @@ const App = () => {
     ]);
 
     return (
-        <SafeAreaProvider style={styles.appContainer}> 
-            <Header title="iMAL" />
+        <SafeAreaProvider style={{ backgroundColor: "#1a1a1a" }}>
             <FlatList
                 data={items}
                 renderItem={(item) => (
-                    <AnimeList title={item.item.key} animeNodeSource={item.item.nodeSource} />
+                    <AnimeList title={item.item.key} animeNodeSource={item.item.nodeSource} navigator={navigation} />
                 )} />
         </SafeAreaProvider>      
     );
 };
-
-const styles = StyleSheet.create({
-    appContainer: {
-        backgroundColor: "#1a1a1a"
-    }
-});
   
 export default App;

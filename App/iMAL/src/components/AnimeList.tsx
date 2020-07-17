@@ -4,16 +4,21 @@ import AnimeItem, { AnimeNode } from './AnimeItem';
 import { stringify } from 'querystring';
 import Authentication from '../APIManager/Authenticate';
 import AnimeNodeSource from '../APIManager/AnimeNodeSource';
+import { NavigationParams, NavigationRoute } from 'react-navigation';
+import { StackNavigationProp } from 'react-navigation-stack/lib/typescript/src/vendor/types';
 
 type AnimeListState = {
     title: string,
     data: AnimeNode[],
-    animeNodeSource: AnimeNodeSource
+    animeNodeSource: AnimeNodeSource,
+    navigator: StackNavigationProp<NavigationRoute<NavigationParams>, NavigationParams>,
+    offset:number
 }
 
 type AnimeListProps = {
     title: string,
-    animeNodeSource: AnimeNodeSource
+    animeNodeSource: AnimeNodeSource,
+    navigator: StackNavigationProp<NavigationRoute<NavigationParams>, NavigationParams>
 }
 
 class AnimeList extends React.Component<AnimeListProps,AnimeListState> {
@@ -23,14 +28,40 @@ class AnimeList extends React.Component<AnimeListProps,AnimeListState> {
         this.state = {
             title: props.title,
             data: [],
-            animeNodeSource: props.animeNodeSource
+            animeNodeSource: props.animeNodeSource,
+            navigator: props.navigator,
+            offset:0
         };
         
-        this.state.animeNodeSource.MakeRequest().then((data) => {
-            this.setState(old => {
+        this.state.animeNodeSource.MakeRequest(20)
+            .then((data) => {
+            this.setState(old => {                
                 old.data.push(...data.data);
-                return old;
+                
+                return {
+                    title: old.title,
+                    data: old.data,
+                    animeNodeSource: old.animeNodeSource,
+                    navigator: old.navigator,
+                    offset: old.data.length
+                };
             });                  
+        });
+    }
+
+    public loadExtra() {
+        this.state.animeNodeSource.MakeRequest(20, this.state.offset).then((data) => {
+            this.setState(old => {                
+                old.data.push(...data.data);
+                
+                return {
+                    title: old.title,
+                    data: old.data,
+                    animeNodeSource: old.animeNodeSource,
+                    navigator: old.navigator,
+                    offset: old.data.length
+                };
+            });   
         });
     }
 
@@ -41,7 +72,10 @@ class AnimeList extends React.Component<AnimeListProps,AnimeListState> {
                 <FlatList
                     horizontal={true}
                     data={this.state.data}
-                    renderItem={(item) => { return (<AnimeItem item={item.item} />) }}
+                    onEndReachedThreshold={0.5}
+                    onEndReached={this.loadExtra.bind(this)}
+                    renderItem={(item) => (
+                        <AnimeItem item={item.item} navigator={this.state.navigator} />)}
                     keyExtractor={(item,index) => index.toString()}/>
             </View>
         );

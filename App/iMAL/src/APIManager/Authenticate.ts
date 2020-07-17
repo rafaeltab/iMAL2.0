@@ -3,7 +3,7 @@ import { isUUID } from './helper/FormatChecker';
 
 class Authentication {
     private static instance: Authentication;
-    private stateCode?: string = "05a4aa9d-9ea2-4fd7-b356-277e97eb9f56";
+    private stateCode?: string = "640dbe1a-0717-4b5f-8dd2-9e9c4ef00cb3";
 
     private constructor() {
         console.log("Starting Authenticator...");
