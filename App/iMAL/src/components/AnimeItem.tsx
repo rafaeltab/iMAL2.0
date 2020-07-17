@@ -1,5 +1,7 @@
 import React from 'react';
 import { StyleSheet, FlatList, View, Text, Image, TouchableOpacity } from 'react-native';
+import { StackNavigationProp } from 'react-navigation-stack/lib/typescript/src/vendor/types';
+import { NavigationRoute, NavigationParams } from 'react-navigation';
 
 export type AnimePicture = {
     medium: string,
@@ -15,23 +17,34 @@ export type AnimeNode = {
 }
 
 type AnimeItemProps = {
-    item: AnimeNode
+    item: AnimeNode,
+    navigator: StackNavigationProp<NavigationRoute<NavigationParams>, NavigationParams>
 }
 
-type AnimeItemState = AnimeNode;
+type AnimeItemState = {
+    item: AnimeNode,
+    navigator: StackNavigationProp<NavigationRoute<NavigationParams>, NavigationParams>
+}
 
 class AnimeItem extends React.Component<AnimeItemProps, AnimeItemState>{
     constructor(props: AnimeItemProps) {
         super(props);
 
-        this.state = props.item;
+        this.state = {
+            item: props.item,
+            navigator: props.navigator
+        };
+    }
+
+    public openDetails() {
+        this.state.navigator.navigate("Details",this.state);
     }
 
     render() {
         return (        
-            <TouchableOpacity style={styles.animeContainer}>
-                <Image style={styles.image} source={{ uri: this.state.node.main_picture.medium }} />
-                <Text style={styles.title}>{this.state.node.title}</Text>
+            <TouchableOpacity style={styles.animeContainer} onPress={this.openDetails.bind(this)}>
+                <Image style={styles.image} source={{ uri: this.state.item.node.main_picture.medium }} />
+                <Text style={styles.title}>{this.state.item.node.title}</Text>
             </TouchableOpacity>               
         );
     }

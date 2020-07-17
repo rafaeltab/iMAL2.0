@@ -1,2 +1,2 @@
-import App from './src/main';
+import App from './src/routes/MainStack';
 export default App;
