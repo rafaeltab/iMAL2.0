@@ -1,6 +1,10 @@
 import ExampleServer from './ExampleServer';
 import { Logger } from '@overnightjs/logger';
 import { SaveDict, RestoreDict } from './controllers/AuthedController';
+import { reload } from './helpers/GLOBALVARS';
+import { config } from 'dotenv';
+config();
+reload();
 
 let PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 

@@ -24,7 +24,7 @@ export async function GetToken(code: string, verifier:string) : Promise<Response
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: `client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=authorization_code&code=${code}&code_verifier=${verifier}`
+            body: `client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=authorization_code&code=${code}&code_verifier=${verifier}&redirect_uri=${process.env.LOCALMODE?"http://localhost:3000/authed":"http://api.imal.ml/authed"}`
         });
         
         try {

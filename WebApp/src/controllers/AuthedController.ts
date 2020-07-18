@@ -134,7 +134,7 @@ export class AuthedController {
         setPending(uuidState, codeVerif);
 
         //build the url that the user needs to go to 
-        let url = `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${CLIENT_ID}&code_challenge=${codeVerif}&state=${uuidState}`;
+        let url = `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${CLIENT_ID}&code_challenge=${codeVerif}&state=${uuidState}&redirect_uri=${process.env.LOCALMODE?"http://localhost:3000/authed":"http://api.imal.ml/authed"}`;
         //log that we are starting an auth for an ip with the state
         Logger.Info(`Starting auth for ${req.ip} with uuidState: ${uuidState}`);
         //send the url and uuid to the user
