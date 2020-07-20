@@ -1,11 +1,7 @@
 import { Request, Response } from 'express';
-import { Controller, Middleware, Get, Put, Post, Delete } from '@overnightjs/core';
+import { Controller, Get } from '@overnightjs/core';
 import { Logger } from '@overnightjs/logger';
-import { getPKCE, getUUID, isUUID } from '../helpers/randomCodes';
-import { GetToken } from '../MALWrapper/Authentication';
-import { CLIENT_ID, CLIENT_SECRET, ERROR_STATUS, SUCCESS_STATUS } from '../helpers/GLOBALVARS';
-import * as fs from 'fs';
-import { tokenResponse, ResponseMessage } from '../MALWrapper/BasicTypes';
+import { ERROR_STATUS, SUCCESS_STATUS } from '../helpers/GLOBALVARS';
 import { UserManager } from '../helpers/UserManager';
 import { BodyOrUrlParams } from '../helpers/RequestHelper';
 
@@ -52,6 +48,7 @@ export class AuthedController {
         }
     }
 
+    //endpoint for login using email and password, returning error or uuid
     @Get("login")
     private Login(req: Request, res: Response) {
         try {
