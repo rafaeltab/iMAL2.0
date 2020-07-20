@@ -1,5 +1,5 @@
 import { getPKCE, getUUID, isUUID } from '../helpers/randomCodes';
-import { CLIENT_ID, CLIENT_SECRET, ERROR_STATUS, SUCCESS_STATUS } from '../helpers/GLOBALVARS';
+import { CLIENT_ID, ERROR_STATUS } from '../helpers/GLOBALVARS';
 import { GetToken } from '../MALWrapper/Authentication';
 import { tokenResponse, ResponseMessage } from '../MALWrapper/BasicTypes';
 import { Database } from './database/Database';
@@ -8,7 +8,7 @@ import { Request, Response } from 'express';
 import { BodyOrUrlParams } from './RequestHelper';
 
 /*
-Manage all user data instead of the codeDict
+Manage all user data
 */
 
 type DictData = {
@@ -31,8 +31,8 @@ type DictEntry = {
 export class UserManager {
     private codeDict: Map<string, DictEntry>;
 
-    //TODO remove old pending, canceled and errored states
-
+    /* #region  functions */
+    /** Log the codeDict */
     public LogDict() {
         let strRep = "";
         this.codeDict.forEach((value, key) => {
@@ -43,9 +43,9 @@ export class UserManager {
 
     /** Start the registration, returns url for authentication */
     public async StartRegister(email: string, password: string): Promise<string> {
-        //TODO: Check format for email and password
+        //Check format for email and password
         const emailReg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        if(!email.match(emailReg)) {
+        if (!email.match(emailReg)) {
             throw new Error("Email incorrect format");
         }
 
@@ -53,7 +53,7 @@ export class UserManager {
         if (!password.match(passReg)) {
             throw new Error("Password incorrect format");
         }
-        
+
         //check if email exists in db
         if ((await Database.GetInstance().GetEmailUsed(email))) throw new Error("Email in use");
 
@@ -61,7 +61,7 @@ export class UserManager {
         let uuid = getUUID();
         let codeVerifier: string = getPKCE(128);
         //create a dict entry with state pendign and the email, password and verifier
-        let dictEntry : DictEntry = {
+        let dictEntry: DictEntry = {
             state: "pending",
             data: {
                 email: email,
@@ -76,19 +76,20 @@ export class UserManager {
             if (dictEntry.state == "pending") {
                 this.codeDict.delete(uuid);
             }
-        },10*60*1000);
+        }, 10 * 60 * 1000);
         //return the authentication url
-        return `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${CLIENT_ID}&code_challenge=${codeVerifier}&state=${uuid}&redirect_uri=${process.env.LOCALMODE?"http://localhost:3000/authed":"http://api.imal.ml/authed"}`;
+        return `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${CLIENT_ID}&code_challenge=${codeVerifier}&state=${uuid}&redirect_uri=${process.env.LOCALMODE ? "http://localhost:3000/authed" : "http://api.imal.ml/authed"}`;
     }
 
-    public async CheckUUID(uuid: string): Promise<"pending"|"done"|"errored"|"canceled"> {
+    /** Check and load state of uuid */
+    public async CheckUUID(uuid: string): Promise<"pending" | "done" | "errored" | "canceled"> {
         if (this.codeDict.has(uuid)) {
             let entry = <DictEntry>this.codeDict.get(uuid);
             return entry.state;
         }
 
         let dbEntry = await Database.GetInstance().GetUserUUID(uuid);
-        let dictEntry : DictEntry = {
+        let dictEntry: DictEntry = {
             state: "done",
             data: {
                 email: dbEntry.email,
@@ -108,7 +109,7 @@ export class UserManager {
         //get the dict entry and check if the state is pending
         let dictEntry = <DictEntry>this.codeDict.get(uuid);
         if (dictEntry.state != "pending") throw new Error("uuid is not pending, it is: " + dictEntry.state);
-        
+
 
         //get the dict data in the correct type
         let dictData = <RegisterData>dictEntry.data;
@@ -131,6 +132,7 @@ export class UserManager {
         return `http://api.imal.ml/anime/suggestions?state=${uuid}`;
     }
 
+    /** Update tokens in database and codeDict if they are new */
     public async TryUpdateTokens(uuid: string, token: string, refreshtoken: string) {
         //check if the tokens have changed
         let tokens = await this.GetTokensForUUID(uuid);
@@ -140,7 +142,7 @@ export class UserManager {
             let curr = <DictData>dictEntry.data;
             curr.token = token;
             curr.RefreshToken = refreshtoken;
-            
+
             this.codeDict.set(uuid, { state: dictEntry.state, data: curr });
 
             //Update token in database
@@ -161,8 +163,9 @@ export class UserManager {
         } else {
             throw new Error("Authentication is not done but " + state);
         }
-    }   
+    }
 
+    /** Do login with an email and password */
     public async Login(email: string, password: string): Promise<string> {
         let data = await Database.GetInstance().GetUserLogin(email, password);
         let dictEntry: DictEntry = {
@@ -177,6 +180,7 @@ export class UserManager {
         return data.id;
     }
 
+    /** Check if state param is set and valid in a request */
     public static CheckRequestState(req: Request, res: Response) {
         //state is one of the paramaters
         let state = BodyOrUrlParams.RequiredString("state", req);
@@ -191,7 +195,7 @@ export class UserManager {
         }
 
         this.GetInstance().CheckUUID(state)
-        
+
         return state;
     }
 
@@ -206,7 +210,7 @@ export class UserManager {
             if (dictEntry.state == "errored") {
                 this.codeDict.delete(uuid);
             }
-        },10*60*1000);
+        }, 10 * 60 * 1000);
     }
 
     /** Set the state for a uuid to canceled */
@@ -220,8 +224,9 @@ export class UserManager {
             if (dictEntry.state == "canceled") {
                 this.codeDict.delete(uuid);
             }
-        },10*60*1000);
+        }, 10 * 60 * 1000);
     }
+    /* #endregion */
 
     /* #region  singleton */
     private static instance: UserManager;

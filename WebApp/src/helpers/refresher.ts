@@ -5,7 +5,6 @@ import { RefreshToken } from '../MALWrapper/Authentication'
 import { Logger } from '@overnightjs/logger';
 import { UserManager } from './UserManager';
 
-//TODO always put authorization in the headers our selves
 export async function RefreshFetch(uuid: string, url: fetch.RequestInfo, init?: fetch.RequestInit | undefined): Promise<any> {
     //get current tokens
     let tokens = await UserManager.GetInstance().GetTokensForUUID(uuid);
@@ -43,6 +42,7 @@ export async function RefreshFetch(uuid: string, url: fetch.RequestInfo, init?: 
 //updata a request init with new tokens
 function addTokenHeader(token: string, init?: fetch.RequestInit | undefined): fetch.RequestInit {
     if (!init) {
+        //init is empty so create one
         return {
             headers: {
                 'Authorization': "Bearer " + token
@@ -50,20 +50,26 @@ function addTokenHeader(token: string, init?: fetch.RequestInit | undefined): fe
         }
     } else {
         if (!init.headers) {
+            //headers is empty so create it
             init.headers = {
                 'Authorization': "Bearer " + token
             }
         }
-        if (init.headers instanceof fetch.Headers) {            
+        if (init.headers instanceof fetch.Headers) {      
+            //headers is typeof headers
             init.headers.set('Authorization',"Bearer " + token)            
         } else {
+            
             if (Array.isArray(init.headers)) {
+                //headers is array so we don't know how to deal with this yet
                 Logger.Info(JSON.stringify(init.headers));
             } else {
+                //header is something I dont know the name off but know how to deal with
                 init.headers["Authorization"] = "Bearer " + token
             }
         }
 
+        //return new init
         return init;
     }    
 }
