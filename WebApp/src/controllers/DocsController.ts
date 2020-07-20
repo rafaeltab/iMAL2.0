@@ -18,7 +18,6 @@ function loadDocs() : string {
     return <string>loaded;
 }
 
-//Main controller
 @Controller('documentation')
 export class DocsController {
     @Get("/")
@@ -26,3 +25,10 @@ export class DocsController {
         res.status(200).send(loadDocs());
     }
 }
+/*
+ID: UUID - same as state
+Username: varchar
+Pass: varchar(hashed)
+token: varchar
+refreshToken: varchar
+*/

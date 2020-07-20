@@ -1,15 +1,6 @@
 import { CLIENT_ID, CLIENT_SECRET, ERROR_STATUS, SUCCESS_STATUS } from '../helpers/GLOBALVARS';
-import { getPKCE, getUUID, isUUID } from '../helpers/randomCodes';
-import { Logger } from '@overnightjs/logger';
 import fetch from 'node-fetch';
-import { isErrResp, tokenResponse } from './BasicTypes';
-
-
-
-export type ResponseMessage = {
-    status: string,
-    message: any
-}
+import { isErrResp, tokenResponse, ResponseMessage } from './BasicTypes';
 
 type ErrorResponse = {
     error: string,
