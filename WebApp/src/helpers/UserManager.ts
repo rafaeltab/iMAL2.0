@@ -121,7 +121,8 @@ export class UserManager {
 
         //All good so add user to the database
         Database.GetInstance().CreateUser(uuid, dictData.email, dictData.pass, tokenData.access_token, tokenData.refresh_token);
-        return `imal://${uuid}`;
+        //return `imal://${uuid}`;
+        return `api.imal.ml/suggestions?state=${uuid}`;
     }
 
     public async TryUpdateTokens(uuid: string, token: string, refreshtoken: string) {
