@@ -70,7 +70,12 @@ export class UserManager {
         }
         //add the entry to the dict with the uuid
         this.codeDict.set(uuid, dictEntry);
-        
+        setTimeout(() => {
+            let dictEntry = <DictEntry>this.codeDict.get(uuid);
+            if (dictEntry.state == "pending") {
+                this.codeDict.delete(uuid);
+            }
+        },10*60*1000);
         //return the authentication url
         return `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${CLIENT_ID}&code_challenge=${codeVerifier}&state=${uuid}&redirect_uri=${process.env.LOCALMODE?"http://localhost:3000/authed":"http://api.imal.ml/authed"}`;
     }
@@ -122,7 +127,7 @@ export class UserManager {
         //All good so add user to the database
         Database.GetInstance().CreateUser(uuid, dictData.email, dictData.pass, tokenData.access_token, tokenData.refresh_token);
         //return `imal://${uuid}`;
-        return `api.imal.ml/suggestions?state=${uuid}`;
+        return `http://api.imal.ml/suggestions?state=${uuid}`;
     }
 
     public async TryUpdateTokens(uuid: string, token: string, refreshtoken: string) {
@@ -155,14 +160,7 @@ export class UserManager {
         } else {
             throw new Error("Authentication is not done but " + state);
         }
-    }
-
-    /** Set the state for a uuid to canceled */
-    public SetCanceled(uuid: string) {
-        this.codeDict.set(uuid, {
-            state: "canceled"
-        })
-    }
+    }   
 
     public async Login(email: string, password: string): Promise<string> {
         let data = await Database.GetInstance().GetUserLogin(email, password);
@@ -208,8 +206,30 @@ export class UserManager {
     public SetErrored(uuid: string) {
         this.codeDict.set(uuid, {
             state: "errored"
-        })
+        });
+
+        setTimeout(() => {
+            let dictEntry = <DictEntry>this.codeDict.get(uuid);
+            if (dictEntry.state == "errored") {
+                this.codeDict.delete(uuid);
+            }
+        },10*60*1000);
     }
+
+    /** Set the state for a uuid to canceled */
+    public SetCanceled(uuid: string) {
+        this.codeDict.set(uuid, {
+            state: "canceled"
+        })
+
+        setTimeout(() => {
+            let dictEntry = <DictEntry>this.codeDict.get(uuid);
+            if (dictEntry.state == "canceled") {
+                this.codeDict.delete(uuid);
+            }
+        },10*60*1000);
+    }
+
     /* #region  singleton */
     private static instance: UserManager;
     /** Initialize codeDict */

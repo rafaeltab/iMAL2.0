@@ -73,6 +73,38 @@ export class AuthedController {
         });
     }
 
+    @Get("login")
+    private Login(req: Request, res: Response) {
+        
+        if (!req.query.email || req.query.email == "") {
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "No email provided"
+            });
+        }
+        if (!req.query.pass || req.query.pass == "") {
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: "No pass provided"
+            });
+        }
+
+        let email = <string>req.query.email;
+        let pass = <string>req.query.pass;
+
+        UserManager.GetInstance().Login(email, pass).then((result) => {
+            res.status(200).json({
+                status: SUCCESS_STATUS,
+                message: result
+            });
+        }).catch((e) => {
+            res.status(403).json({
+                status: ERROR_STATUS,
+                message: e.message
+            });
+        });
+    }
+
     //endpoint that gets called when the user clicks either of the buttons on mal
     @Get()
     private authed(req: Request, res: Response) {
