@@ -107,26 +107,23 @@ function FieldsToString(fields: Fields[]) : string {
     return fields.map<string>((field, index, array) => { return Fields[field] }).join(", ");
 }
 
-export async function GetDetails(tokens: tokenResponse, animeid: number,fields?: Fields[] | undefined): Promise<RequestResponse<Anime>> {
+export async function GetDetails(uuid: string, animeid: number,fields?: Fields[] | undefined): Promise<Anime> {
     if (!fields || fields.length === 0) {
         fields = allFields();
     }
 
     let url = `https://api.myanimelist.net/v2/anime/${animeid}?fields=${FieldsToString(fields)}`;
-    let data = await RefreshFetch(tokens,url, {
+    let data = await RefreshFetch(uuid,url, {
         method: "GET",
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Bearer ${tokens.access_token}`
+            'Content-Type': 'application/x-www-form-urlencoded'
         }
     });
 
-    let newTokens = data.tokens;
-
-    let json: Anime | ErrorResponse = data.responseJson;
+    let json: Anime | ErrorResponse = data;
     if ((json as ErrorResponse).error) {
-        return { response: <ErrorResponse>json };
+        throw new Error((json as ErrorResponse).error);
     }
     
-    return { response: { response: (json as Anime), tokens: newTokens } };
+    return (json as Anime);
 }

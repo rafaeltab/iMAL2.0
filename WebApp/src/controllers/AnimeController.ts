@@ -1,30 +1,25 @@
 import { Request, Response } from 'express';
 import { Controller, Get } from '@overnightjs/core';
 import { Logger } from '@overnightjs/logger';
-import { isUUID } from '../helpers/randomCodes';
 import { ERROR_STATUS } from '../helpers/GLOBALVARS';
-import { getDict } from './AuthedController';
 import { GetSuggested } from '../MALWrapper/Anime/Suggestions';
 import { isErrResp, isTokenResponse } from '../MALWrapper/BasicTypes';
 import { GetDetails } from '../MALWrapper/Anime/Details';
 import { GetRanking } from '../MALWrapper/Anime/Ranking';
 import { GetSearch } from '../MALWrapper/Anime/Search';
-import { parse } from 'path';
 import { GetSeasonal } from '../MALWrapper/Anime/Seasonal';
-import { DoState } from '../helpers/statechecker';
+import { UserManager } from '../helpers/UserManager';
 
 //Main controller
 @Controller('anime')
 export class AnimeController {
     @Get("suggestions")
     private Suggestions(req: Request, res: Response) {        
-        let codeDict = getDict();
-        let stat = DoState(req, res, codeDict);
+        let stat = UserManager.CheckRequestState(req,res);
         if (typeof stat === "boolean") {
             return;
         }
         let state = <string>stat;
-        let currStat = codeDict.get(state);
         
         let limit;
         let offset;
@@ -47,45 +42,25 @@ export class AnimeController {
                 
             }
         }
-
-        //everything is good
-        if (isTokenResponse(currStat)) {
-            GetSuggested(currStat, limit, offset).then((response) => {
-                let result = response.response;
-                if (isErrResp(result)) {
-                    res.status(500).json(result);
-                } else {
-                    codeDict.set(state, result.tokens);
-                    res.status(200).json(result.response);
-                }
-                return;
-            //Maybe it isnt :()
-            }).catch(() => {
-                res.status(500).json({
-                    status: ERROR_STATUS,
-                    message: "A server error occurred"
-                });
-            });
-        //not ok
-        } else {
-            Logger.Info(JSON.stringify(currStat));
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "state has no tokens, authenticate properly first"
-            });
-        }
         
+        GetSuggested(state, limit, offset).then((result) => {
+            res.status(200).json(result);
+        //Maybe it isnt :()
+        }).catch((e) => {
+            res.status(500).json({
+                status: ERROR_STATUS,
+                message: e.message
+            });
+        });      
     }
 
     @Get("search")
     private search(req: Request, res: Response) {
-        let codeDict = getDict();
-        let stat = DoState(req, res, codeDict);
+        let stat = UserManager.CheckRequestState(req,res);
         if (typeof stat === "boolean") {
             return;
         }
         let state = <string>stat;
-        let currStat = codeDict.get(state);
 
         if (!req.query.query) {
             res.status(422).json({
@@ -118,43 +93,25 @@ export class AnimeController {
             }
         }
 
-        //everything is good
-        if (isTokenResponse(currStat)) {
-            GetSearch(currStat,query,limit, offset).then((response) => {
-                let result = response.response;
-                if (isErrResp(result)) {
-                    res.status(500).json(result);
-                } else {
-                    codeDict.set(state, result.tokens);
-                    res.status(200).json(result.response);
-                }
-                return;
-            //Maybe it isnt :()
-            }).catch(() => {
-                res.status(500).json({
-                    status: ERROR_STATUS,
-                    message: "A server error occurred"
-                });
-            });
-        //not ok
-        } else {
-            Logger.Info(JSON.stringify(currStat));
-            res.status(403).json({
+        //everything is good        
+        GetSearch(state,query,limit, offset).then((result) => {            
+            res.status(200).json(result);            
+        //Maybe it isnt :()
+        }).catch((e) => {
+            res.status(500).json({
                 status: ERROR_STATUS,
-                message: "state has no tokens, authenticate properly first"
+                message: e.message
             });
-        }
+        });        
     }
 
     @Get("details")
     private details(req: Request, res: Response) {
-        let codeDict = getDict();
-        let stat = DoState(req, res, codeDict);
+        let stat = UserManager.CheckRequestState(req,res);
         if (typeof stat === "boolean") {
             return;
         }
         let state = <string>stat;
-        let currStat = codeDict.get(state);
         
         let animeid = 1;
         if (req.query.animeid) {
@@ -165,43 +122,25 @@ export class AnimeController {
             }
         }
 
-        //everything is good
-        if (isTokenResponse(currStat)) {
-            GetDetails( currStat, animeid).then((response) => {
-                let result = response.response;
-                if (isErrResp(result)) {
-                    res.status(500).json(result);
-                } else {
-                    codeDict.set(state, result.tokens);
-                    res.status(200).json(result.response);
-                }
-                return;
-            //Maybe it isnt :()
-            }).catch(() => {
-                res.status(500).json({
-                    status: ERROR_STATUS,
-                    message: "A server error occurred"
-                });
-            });
-        //not ok
-        } else {
-            Logger.Info(JSON.stringify(currStat));
-            res.status(403).json({
+        //everything is good        
+        GetDetails( state, animeid).then((result) => {
+            res.status(200).json(result);
+        //Maybe it isnt :()
+        }).catch((e) => {
+            res.status(500).json({
                 status: ERROR_STATUS,
-                message: "state has no tokens, authenticate properly first"
+                message: e.message
             });
-        }
+        });
     }
 
     @Get("seasonal")
     private seasonal(req: Request, res: Response) {
-        let codeDict = getDict();
-        let stat = DoState(req, res, codeDict);
+        let stat = UserManager.CheckRequestState(req,res);
         if (typeof stat === "boolean") {
             return;
         }
         let state = <string>stat;
-        let currStat = codeDict.get(state);
 
         let year = 2020;
         if (req.query.year) {
@@ -269,42 +208,25 @@ export class AnimeController {
         }
 
         //everything is good
-        if (isTokenResponse(currStat)) {
-            GetSeasonal(currStat,sort,year,season, limit, offset).then((response) => {
-                let result = response.response;
-                if (isErrResp(result)) {
-                    res.status(500).json(result);
-                } else {
-                    codeDict.set(state, result.tokens);
-                    res.status(200).json(result.response);
-                }
-                return;
-            //Maybe it isnt :()
-            }).catch(() => {
-                res.status(500).json({
-                    status: ERROR_STATUS,
-                    message: "A server error occurred"
-                });
-            });
-        //not ok
-        } else {
-            Logger.Info(JSON.stringify(currStat));
-            res.status(403).json({
+        GetSeasonal(state,sort,year,season, limit, offset).then((result) => {
+            res.status(200).json(result);
+        //Maybe it isnt :()
+        }).catch((e) => {
+            res.status(500).json({
                 status: ERROR_STATUS,
-                message: "state has no tokens, authenticate properly first"
+                message: e.message
             });
-        }
+        });
+        
     }
 
     @Get("ranking")
     private ranking(req: Request, res: Response) {
-        let codeDict = getDict();
-        let stat = DoState(req, res, codeDict);
+        let stat = UserManager.CheckRequestState(req,res);
         if (typeof stat === "boolean") {
             return;
         }
         let state = <string>stat;
-        let currStat = codeDict.get(state);     
         
         let limit: number|undefined;
         let rankingtype : undefined|"all" | "airing" | "upcoming" | "tv" | "ova" | "movie" | "special" | "bypopularity" | "favorite";
@@ -331,30 +253,15 @@ export class AnimeController {
         }
 
         //everything is good
-        if (isTokenResponse(currStat)) {
-            GetRanking(currStat,rankingtype,limit,offset).then((response) => {
-                let result = response.response;
-                if (isErrResp(result)) {
-                    res.status(500).json(result);
-                } else {
-                    codeDict.set(state, result.tokens);
-                    res.status(200).json(result.response);
-                }
-                return;
-            //Maybe it isnt :()
-            }).catch(() => {
-                res.status(500).json({
-                    status: ERROR_STATUS,
-                    message: "A server error occurred"
-                });
-            });
-        //not ok
-        } else {
-            Logger.Info(JSON.stringify(currStat));
-            res.status(403).json({
+        GetRanking(state,rankingtype,limit,offset).then((result) => {
+                res.status(200).json(result);
+        //Maybe it isnt :()
+        }).catch((e) => {
+            res.status(500).json({
                 status: ERROR_STATUS,
-                message: "state has no tokens, authenticate properly first"
+                message: e.message
             });
-        }
+        });
+        
     }
 }

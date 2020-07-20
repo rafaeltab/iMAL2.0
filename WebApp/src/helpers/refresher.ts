@@ -1,17 +1,18 @@
 import { ErrorResponse, isErrResp, tokenResponse, isTokenResponse } from '../MALWrapper/BasicTypes';
 import * as fetch from 'node-fetch';
 import { json } from 'body-parser';
-import {RefreshToken } from '../MALWrapper/Authentication'
+import { RefreshToken } from '../MALWrapper/Authentication'
 import { Logger } from '@overnightjs/logger';
+import { UserManager } from './UserManager';
 
-export type RefreshType = {
-    tokens: tokenResponse,
-    responseJson: any
-}
-
-export async function RefreshFetch(tokens: tokenResponse, url: fetch.RequestInfo, init?: fetch.RequestInit | undefined): Promise<RefreshType> {
+//TODO always put authorization in the headers our selves
+export async function RefreshFetch(uuid: string, url: fetch.RequestInfo, init?: fetch.RequestInit | undefined): Promise<any> {
+    //get current tokens
+    let tokens = await UserManager.GetInstance().GetTokensForUUID(uuid);
+    
     //make first request
-    let res = await fetch.default(url, init);
+    let ini = addTokenHeader(tokens.token, init);
+    let res = await fetch.default(url, ini);
     //get json from the request
     let jsonRes = await res.json();
     //check if the response is an error
@@ -19,7 +20,7 @@ export async function RefreshFetch(tokens: tokenResponse, url: fetch.RequestInfo
         //check if the response is invalid_token error
         if (jsonRes.error == "invalid_token") {
             //get new tokens
-            let refresh = await RefreshToken(tokens.refresh_token);
+            let refresh = await RefreshToken(tokens.refreshtoken);
             //double check the new token is a token
             if (isTokenResponse(refresh)) {
                 //put the token in the headers
@@ -27,20 +28,16 @@ export async function RefreshFetch(tokens: tokenResponse, url: fetch.RequestInfo
                 //make the request again with new token
                 let res2 = await fetch.default(url, newInit);
 
+                //update the tokens
+                await UserManager.GetInstance().TryUpdateTokens(uuid, refresh.access_token, refresh.refresh_token);
                 //return new result
-                return {
-                    tokens: refresh,
-                    responseJson: res2.json()
-                }
+                return res2.json();
             }
         }
     }
 
-    //return old tokens + response in case of any errors
-    return {
-        tokens: tokens,
-        responseJson: jsonRes
-    }
+    //return response in case of any errors
+    return jsonRes;
 }
 
 //updata a request init with new tokens
@@ -68,7 +65,5 @@ function addTokenHeader(token: string, init?: fetch.RequestInit | undefined): fe
         }
 
         return init;
-    }
-
-    
+    }    
 }
