@@ -5,6 +5,7 @@ import { tokenResponse, ResponseMessage } from '../MALWrapper/BasicTypes';
 import { Database } from './database/Database';
 import { Logger } from '@overnightjs/logger';
 import { Request, Response } from 'express';
+import { BodyOrUrlParams } from './RequestHelper';
 
 /*
 Manage all user data instead of the codeDict
@@ -127,7 +128,7 @@ export class UserManager {
         //All good so add user to the database
         Database.GetInstance().CreateUser(uuid, dictData.email, dictData.pass, tokenData.access_token, tokenData.refresh_token);
         //return `imal://${uuid}`;
-        return `http://api.imal.ml/suggestions?state=${uuid}`;
+        return `http://api.imal.ml/anime/suggestions?state=${uuid}`;
     }
 
     public async TryUpdateTokens(uuid: string, token: string, refreshtoken: string) {
@@ -178,15 +179,7 @@ export class UserManager {
 
     public static CheckRequestState(req: Request, res: Response) {
         //state is one of the paramaters
-        if (!req.query.state) {
-            res.status(422).json({
-                status: ERROR_STATUS,
-                message: "Missing parameter state"
-            });
-            return false;
-        }
-
-        let state: string = String(req.query.state);
+        let state = BodyOrUrlParams.RequiredString("state", req);
 
         //state is valid format
         if (!isUUID(state)) {

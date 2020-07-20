@@ -3,12 +3,12 @@ import { Controller, Get } from '@overnightjs/core';
 import { Logger } from '@overnightjs/logger';
 import { ERROR_STATUS } from '../helpers/GLOBALVARS';
 import { GetSuggested } from '../MALWrapper/Anime/Suggestions';
-import { isErrResp, isTokenResponse } from '../MALWrapper/BasicTypes';
 import { GetDetails } from '../MALWrapper/Anime/Details';
 import { GetRanking } from '../MALWrapper/Anime/Ranking';
 import { GetSearch } from '../MALWrapper/Anime/Search';
 import { GetSeasonal } from '../MALWrapper/Anime/Seasonal';
 import { UserManager } from '../helpers/UserManager';
+import { BodyOrUrlParams } from '../helpers/RequestHelper';
 
 //Main controller
 @Controller('anime')
@@ -21,26 +21,10 @@ export class AnimeController {
         }
         let state = <string>stat;
         
-        let limit;
-        let offset;
-        //check if limit is a parameter (non-breaking)
-        if (req.query.limit) {
-            try {
-                limit = Number.parseInt(<string>req.query.limit);
-                if (limit > 100) {
-                    limit = 100;
-                }
-            } catch (e) {
-                
-            }
-        }
-        //check if offset is a parameter (non-breaking)
-        if (req.query.offset) {
-            try {
-                offset = Number.parseInt(<string>req.query.offset);
-            } catch (e) {
-                
-            }
+        let limit = BodyOrUrlParams.OptionalInt("limit", req);
+        let offset = BodyOrUrlParams.OptionalInt("offset", req);
+        if (limit && limit > 100) {
+            limit = 100;
         }
         
         GetSuggested(state, limit, offset).then((result) => {
@@ -62,35 +46,12 @@ export class AnimeController {
         }
         let state = <string>stat;
 
-        if (!req.query.query) {
-            res.status(422).json({
-                status: ERROR_STATUS,
-                message: "query paramater is missing"
-            });
-            return;
-        }
-
-        let query = <string>req.query.query;
-        let limit;
-        let offset;
-        //check if limit is a parameter (non-breaking)
-        if (req.query.limit) {
-            try {
-                limit = Number.parseInt(<string>req.query.limit);
-                if (limit > 100) {
-                    limit = 100;
-                }
-            } catch (e) {
-                
-            }
-        }
-        //check if offset is a parameter (non-breaking)
-        if (req.query.offset) {
-            try {
-                offset = Number.parseInt(<string>req.query.offset);
-            } catch (e) {
-                
-            }
+        let query = BodyOrUrlParams.RequiredString("query", req);
+        
+        let limit = BodyOrUrlParams.OptionalInt("limit", req);
+        let offset = BodyOrUrlParams.OptionalInt("offset", req);
+        if (limit && limit > 100) {
+            limit = 100;
         }
 
         //everything is good        
@@ -113,14 +74,8 @@ export class AnimeController {
         }
         let state = <string>stat;
         
-        let animeid = 1;
-        if (req.query.animeid) {
-            try {
-                animeid = parseInt(<string>req.query.animeid)
-            } catch (e) {
-                
-            }
-        }
+        let animeid = BodyOrUrlParams.OptionalInt("animeid", req);
+        animeid = animeid ? animeid : 1;
 
         //everything is good        
         GetDetails( state, animeid).then((result) => {
@@ -184,27 +139,10 @@ export class AnimeController {
             }
         }
 
-
-        let limit;
-        let offset;
-        //check if limit is a parameter (non-breaking)
-        if (req.query.limit) {
-            try {
-                limit = Number.parseInt(<string>req.query.limit);
-                if (limit > 100) {
-                    limit = 100;
-                }
-            } catch (e) {
-                
-            }
-        }
-        //check if offset is a parameter (non-breaking)
-        if (req.query.offset) {
-            try {
-                offset = Number.parseInt(<string>req.query.offset);
-            } catch (e) {
-                
-            }
+        let limit = BodyOrUrlParams.OptionalInt("limit", req);
+        let offset = BodyOrUrlParams.OptionalInt("offset", req);
+        if (limit && limit > 100) {
+            limit = 100;
         }
 
         //everything is good
@@ -217,7 +155,6 @@ export class AnimeController {
                 message: e.message
             });
         });
-        
     }
 
     @Get("ranking")
@@ -228,23 +165,14 @@ export class AnimeController {
         }
         let state = <string>stat;
         
-        let limit: number|undefined;
-        let rankingtype : undefined|"all" | "airing" | "upcoming" | "tv" | "ova" | "movie" | "special" | "bypopularity" | "favorite";
-        let offset: undefined|number;
-        if (req.query.limit) {
-            try {
-                limit = parseInt(<string>req.query.limit);
-            } catch (e) {
-                
-            }
+        let rankingtype: undefined | "all" | "airing" | "upcoming" | "tv" | "ova" | "movie" | "special" | "bypopularity" | "favorite";
+        
+        let limit = BodyOrUrlParams.OptionalInt("limit", req);
+        let offset = BodyOrUrlParams.OptionalInt("offset", req);
+        if (limit && limit > 100) {
+            limit = 100;
         }
-        if (req.query.offset) {
-            try {
-                offset = parseInt(<string>req.query.offset);
-            } catch (e) {
-                
-            }
-        }
+
         if (req.query.rankingtype) {
             const possible = ["all", "airing", "upcoming", "tv", "ova", "movie", "special", "bypopularity", "favorite"];
             if (possible.includes(<string>req.query.rankingtype)) {
@@ -262,6 +190,5 @@ export class AnimeController {
                 message: e.message
             });
         });
-        
     }
 }
