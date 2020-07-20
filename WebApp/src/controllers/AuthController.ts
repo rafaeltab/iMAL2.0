@@ -1,5 +1,3 @@
-//AuthedController vs 2.0
-
 import { Request, Response } from 'express';
 import { Controller, Middleware, Get, Put, Post, Delete } from '@overnightjs/core';
 import { Logger } from '@overnightjs/logger';
@@ -9,6 +7,7 @@ import { CLIENT_ID, CLIENT_SECRET, ERROR_STATUS, SUCCESS_STATUS } from '../helpe
 import * as fs from 'fs';
 import { tokenResponse, ResponseMessage } from '../MALWrapper/BasicTypes';
 import { UserManager } from '../helpers/UserManager';
+import { BodyOrUrlParams } from '../helpers/RequestHelper';
 
 //Main controller
 @Controller('authed')
@@ -26,97 +25,69 @@ export class AuthedController {
     //endpoint for registering a new user
     @Get("register")
     private Register(req: Request, res: Response) {
-        //TODO move to body of request
         //Check if email and password are present
-        if (!req.query.email) {
-            res.status(422).json({
-                status: ERROR_STATUS,
-                message: "Missing parameter email"
-            });
-        }
-        if (!req.query.pass) {
-            res.status(422).json({
-                status: ERROR_STATUS,
-                message: "Missing parameter pass"
-            });
-        }
+        try {
+            let email = BodyOrUrlParams.RequiredString("email", req);
+            let pass = BodyOrUrlParams.RequiredString("pass", req);
 
-        if (req.query.email == "") {
+            UserManager.GetInstance().StartRegister(email, pass).then((url) => {
+                //log that we are starting an auth for an ip with the state
+                Logger.Info(`Starting auth for ${req.ip}`);
+                //send the url and uuid to the user
+                res.status(200).json({
+                    status: SUCCESS_STATUS,
+                    message: url
+                });
+            }).catch((e) => {
+                res.status(500).json({
+                    status: ERROR_STATUS,
+                    message: e.message
+                });
+            });
+        } catch (e) {
             res.status(422).json({
-                status: ERROR_STATUS,
-                message: "parameter email is empty"
-            });
-        }
-        if (req.query.pass == "") {
-            res.status(422).json({
-                status: ERROR_STATUS,
-                message: "parameter pass is empty"
-            });
-        }
-
-        let email = <string>req.query.email;
-        let pass = <string>req.query.pass;
-
-        UserManager.GetInstance().StartRegister(email, pass).then((url) => {
-            //log that we are starting an auth for an ip with the state
-            Logger.Info(`Starting auth for ${req.ip}`);
-            //send the url and uuid to the user
-            res.status(200).json({
-                status: SUCCESS_STATUS,
-                message: url
-            });
-        }).catch((e) => {
-            res.status(500).json({
                 status: ERROR_STATUS,
                 message: e.message
             });
-        });
+        }
     }
 
     @Get("login")
     private Login(req: Request, res: Response) {
-        
-        if (!req.query.email || req.query.email == "") {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "No email provided"
-            });
-        }
-        if (!req.query.pass || req.query.pass == "") {
-            res.status(403).json({
-                status: ERROR_STATUS,
-                message: "No pass provided"
-            });
-        }
+        try {
+            let email = BodyOrUrlParams.RequiredString("email", req);
+            let pass = BodyOrUrlParams.RequiredString("pass", req);
 
-        let email = <string>req.query.email;
-        let pass = <string>req.query.pass;
-
-        UserManager.GetInstance().Login(email, pass).then((result) => {
-            res.status(200).json({
-                status: SUCCESS_STATUS,
-                message: result
+            UserManager.GetInstance().Login(email, pass).then((result) => {
+                res.status(200).json({
+                    status: SUCCESS_STATUS,
+                    message: result
+                });
+            }).catch((e) => {
+                res.status(403).json({
+                    status: ERROR_STATUS,
+                    message: e.message
+                });
             });
-        }).catch((e) => {
-            res.status(403).json({
+        } catch (e) {
+            res.status(422).json({
                 status: ERROR_STATUS,
                 message: e.message
             });
-        });
+        }
     }
 
     //endpoint that gets called when the user clicks either of the buttons on mal
     @Get()
     private authed(req: Request, res: Response) {
+        //TODO redirect to app instead of returning json
         let stat = UserManager.CheckRequestState(req,res);
         if (typeof stat === "boolean") {
             return;
         }
         let state = <string>stat;
 
-        //user canceled or some other error we don't know of
-        if (req.query.error) {
-            let state = String(req.query.state);
+        if (BodyOrUrlParams.OptionalString("error", req)) {
             Logger.Info(`Auth ERR for ${state}: ${req.query.hint}`);
 
             UserManager.GetInstance().SetCanceled(state);
@@ -165,6 +136,4 @@ export class AuthedController {
             });
         });        
     }  
-
-    //TODO add login endpoint
 }
