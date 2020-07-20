@@ -59,10 +59,10 @@ export class Database {
         let res = await this.ParamQuery(query, [email]);
 
         //user doesn't exist
-        if (res.rowCount === 0) throw new Error("User doesn't exist");
+        if (res.rowCount === 0) throw new Error("Incorrect login");
         
         let entry = res.rows[0];
-        if (!hasher.Verify(password, entry.pass)) throw new Error("Incorrect password");
+        if (!hasher.Verify(password, entry.pass)) throw new Error("Incorrect login");
 
         return {
             id: entry.id,
