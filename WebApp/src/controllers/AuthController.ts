@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Controller, Get } from '@overnightjs/core';
+import { Controller, Get, Post } from '@overnightjs/core';
 import { Logger } from '@overnightjs/logger';
 import { ERROR_STATUS, SUCCESS_STATUS } from '../helpers/GLOBALVARS';
 import { UserManager } from '../helpers/UserManager';
@@ -19,7 +19,7 @@ export class AuthedController {
     }
 
     //endpoint for registering a new user
-    @Get("register")
+    @Post("register")
     private Register(req: Request, res: Response) {
         //Check if email and password are present
         try {
@@ -49,7 +49,7 @@ export class AuthedController {
     }
 
     //endpoint for login using email and password, returning error or uuid
-    @Get("login")
+    @Post("login")
     private Login(req: Request, res: Response) {
         try {
             let email = BodyOrUrlParams.RequiredString("email", req);

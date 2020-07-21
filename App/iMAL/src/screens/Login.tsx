@@ -5,6 +5,8 @@ import { NavigationDrawerScreenProps, NavigationDrawerProp } from 'react-navigat
 import {Dimensions } from "react-native";
 import { NavigationRoute, NavigationParams } from 'react-navigation';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import Auth from '../APIManager/Authenticate';
+
 
 type LoginState = {
     navigator: NavigationDrawerProp<NavigationRoute<NavigationParams>, NavigationParams>,
@@ -31,7 +33,12 @@ class Login extends React.Component<NavigationDrawerScreenProps, LoginState>{
     }
 
     private DoLogin() {
-        this.state.navigator.navigate("Home");
+        Auth.getInstance().Trylogin(this.state.email, this.state.pass).then((res) => {
+            if (res === true) {
+                this.state.navigator.navigate("Home");
+            }
+        });
+        
     }
 
     private DoSignup() {
