@@ -1,8 +1,6 @@
-import React, { useState,  } from 'react';
+import React from 'react';
 import { StyleSheet, FlatList, View, Text } from 'react-native';
 import AnimeItem, { AnimeNode } from './AnimeItem';
-import { stringify } from 'querystring';
-import Authentication from '../APIManager/Authenticate';
 import AnimeNodeSource from '../APIManager/AnimeNodeSource';
 import { NavigationParams, NavigationRoute } from 'react-navigation';
 import { StackNavigationProp } from 'react-navigation-stack/lib/typescript/src/vendor/types';
@@ -33,9 +31,9 @@ class AnimeList extends React.Component<AnimeListProps,AnimeListState> {
         };
         
         this.state.animeNodeSource.MakeRequest(20).then((data) => {
-            this.setState(old => {                
+            this.setState(old => {
                 old.data.push(...data.data);
-                
+            
                 return {
                     title: old.title,
                     data: old.data,
@@ -43,8 +41,8 @@ class AnimeList extends React.Component<AnimeListProps,AnimeListState> {
                     navigator: old.navigator,
                     offset: old.data.length
                 };
-            });                  
-        });
+            });
+        });        
     }
 
     public loadExtra() {

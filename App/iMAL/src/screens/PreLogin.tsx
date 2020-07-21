@@ -5,7 +5,7 @@ import { NavigationDrawerScreenProps } from 'react-navigation-drawer';
 import Auth from '../APIManager/Authenticate';
 
 //Auth.devMode = false;
-Auth.ClearAsync();
+//Auth.ClearAsync();
 
 class PreLogin extends React.Component<NavigationDrawerScreenProps,NavigationDrawerScreenProps> {
     constructor(props: NavigationDrawerScreenProps) {
@@ -22,7 +22,7 @@ class PreLogin extends React.Component<NavigationDrawerScreenProps,NavigationDra
                 this.state.navigation.navigate("Main");
             } else {
                 this.state.navigation.navigate("Login");
-            } 
+            }
         });
     }
 

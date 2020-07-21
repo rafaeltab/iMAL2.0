@@ -7,7 +7,6 @@ import { StackNavigationOptions, StackNavigationProp, StackNavigationConfig } fr
 import Register from '../screens/Register';
 import Login from '../screens/Login';
 import PreLogin from '../screens/PreLogin';
-import RegisterCallback from '../screens/RegisterCallback';
 
 const screens : NavigationRouteConfigMap<StackNavigationOptions,StackNavigationProp<NavigationRoute<NavigationParams>>,unknown>  = {
     PreLogin: {
@@ -18,10 +17,6 @@ const screens : NavigationRouteConfigMap<StackNavigationOptions,StackNavigationP
     },
     Register: {
         screen: Register
-    },
-    RegisterCallback: {
-        screen: RegisterCallback,
-        path: 'auth/:uuid'
     }
 }
 
