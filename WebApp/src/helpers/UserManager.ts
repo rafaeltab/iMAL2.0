@@ -110,7 +110,6 @@ export class UserManager {
         let dictEntry = <DictEntry>this.codeDict.get(uuid);
         if (dictEntry.state != "pending") throw new Error("uuid is not pending, it is: " + dictEntry.state);
 
-
         //get the dict data in the correct type
         let dictData = <RegisterData>dictEntry.data;
         //get the tokens from MAL
@@ -129,7 +128,7 @@ export class UserManager {
         //All good so add user to the database
         Database.GetInstance().CreateUser(uuid, dictData.email, dictData.pass, tokenData.access_token, tokenData.refresh_token);
         //return `imal://${uuid}`;
-        return `http://api.imal.ml/anime/suggestions?state=${uuid}`;
+        return `imal://auth/${uuid}`;
     }
 
     /** Update tokens in database and codeDict if they are new */

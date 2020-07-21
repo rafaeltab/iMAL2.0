@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, Button, View, TextInput,  } from 'react-native';
+import { StyleSheet, Text, Button, View, TextInput, Linking,  } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationDrawerScreenProps, NavigationDrawerProp } from 'react-navigation-drawer';
 import {Dimensions } from "react-native";
 import { StackNavigationProp } from 'react-navigation-stack/lib/typescript/src/vendor/types';
 import { NavigationRoute, NavigationParams } from 'react-navigation';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import Auth from '../APIManager/Authenticate';
+import { WebBrowser } from 'expo';
 
 type RegisterState = {
     navigator: NavigationDrawerProp<NavigationRoute<NavigationParams>, NavigationParams>,
@@ -26,7 +28,8 @@ class Register extends React.Component<NavigationDrawerScreenProps, RegisterStat
     }
 
     private changeEmail(newstr: string) {
-        this.setState({...this.state,email: newstr});
+        this.setState({ ...this.state, email: newstr });
+        
     }
 
     private changePass(newstr: string) {
@@ -38,7 +41,14 @@ class Register extends React.Component<NavigationDrawerScreenProps, RegisterStat
     }
 
     private DoSignup() {
-        this.state.navigator.navigate("Home");
+        Auth.getInstance().then((auth) => {
+            auth.TryRegister(this.state.email, this.state.pass).then((res) => {
+                if (res != "") {
+                    //we got a link to open
+                    Linking.openURL(res);
+                }
+            });
+        }); 
     }
 
     private DoSignin() {

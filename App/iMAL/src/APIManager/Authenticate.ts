@@ -10,6 +10,7 @@ class Authentication {
     private static instance: Authentication;
     private stateCode?: string;// = "12ac8766-cc54-4360-b7c4-91cd1374daec";
     private loaded: boolean = false;
+    public static devMode = false;
 
     private constructor() {
         console.log("Starting Authenticator...");
@@ -17,16 +18,23 @@ class Authentication {
             this.loaded = true;
             return;
         }
-        
-        //try to load stateCode from local storage
-        AsyncStorage.getItem("stateCode")
-            .then((value) => {
+    }
+
+    private async LoadStorage(): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            //try to load stateCode from local storage
+            AsyncStorage.getItem("stateCode").then((value) => {
                 if (value != null && isUUID(value)) {
                     //value was in localstorage so put it in the variable
                     this.loaded = true;
                     this.stateCode = value;
+                    console.log(value);
+                    resolve(true);
+                } else {
+                    resolve(false);
                 }
-        });
+            });
+        });        
     }
 
     private SetCode(uuid: string) {
@@ -37,6 +45,14 @@ class Authentication {
 
     public getLoaded(): boolean {
         return this.loaded;
+    }
+
+    public setCode(uuid: string) {
+        if (isUUID(uuid)) {
+            this.stateCode = uuid;
+        } else {
+            throw new Error("param uuid is not correct format");
+        }
     }
 
     public GetStateCode(): string | undefined {
@@ -78,12 +94,50 @@ class Authentication {
         return false;
     }
 
-    static getInstance(): Authentication {
+    public async TryRegister(email: string, password: string) : Promise<string> {
+        //url to make request to
+        let url = `http://api.imal.ml/authed/register`;
+        //the body of the request
+        let body = {
+            email: email,
+            pass: password
+        }
+        //make the request
+        let res = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        });
+        //is the response an error !?!?!?
+        let json: JsonType = await res.json();
+        if (json.status == "error") {
+            //oh fuck
+            Alert.alert("Something bad happened",json.message);
+            return "";
+        }
+
+        return json.message;
+    }
+
+    static async getInstance(): Promise<Authentication> {
         if (!Authentication.instance) {
             Authentication.instance = new Authentication();
+            if (!this.devMode) {
+                await Authentication.instance.LoadStorage();
+            }            
         }
 
         return Authentication.instance;
+    }
+
+    public static async ClearAsync() {
+        return new Promise((resolve, reject) => {
+            AsyncStorage.removeItem("stateCode", () => {
+                resolve();
+            });
+        });        
     }
 }
 

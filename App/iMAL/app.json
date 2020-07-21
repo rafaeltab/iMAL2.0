@@ -22,6 +22,10 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "description": ""
+    "description": "",
+    "scheme": "imal",
+    "android": {
+      "package": "com.rafaeltab.iMAL"
+    }
   }
 }

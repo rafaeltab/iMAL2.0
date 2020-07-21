@@ -6,9 +6,6 @@ import Authentication from './APIManager/Authenticate';
 import SeasonalSource from './APIManager/Seasonal';
 import { NavigationStackScreenProps } from 'react-navigation-stack';
 
-
-Authentication.getInstance();
-
 const App = ({ navigation } : NavigationStackScreenProps) => {
     const [items, setItems] = useState([
         {
