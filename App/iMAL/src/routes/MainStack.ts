@@ -16,7 +16,10 @@ const screens : NavigationRouteConfigMap<StackNavigationOptions,StackNavigationP
 const defaultOptions: CreateNavigatorConfig<StackNavigationConfig, NavigationStackRouterConfig, StackNavigationOptions, StackNavigationProp<NavigationRoute<NavigationParams>, NavigationParams>> | undefined = {
     defaultNavigationOptions: {
         headerStyle: {
-            backgroundColor: '#2E51A2'            
+            backgroundColor: '#2E51A2'
+        },
+        headerTitleStyle: {
+            fontFamily: "AGRevueCyr"
         },
         headerTintColor: 'white',
         headerTitleAlign: 'center',

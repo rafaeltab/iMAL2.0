@@ -4,18 +4,26 @@ import {Dimensions } from "react-native";
 import { NavigationDrawerScreenProps } from 'react-navigation-drawer';
 import Auth from '../APIManager/Authenticate';
 
+//Auth.devMode = false;
+Auth.ClearAsync();
+
 class PreLogin extends React.Component<NavigationDrawerScreenProps,NavigationDrawerScreenProps> {
     constructor(props: NavigationDrawerScreenProps) {
         super(props);
-        this.state = props;
-    }
+        this.state = {
+            navigation: props.navigation,
+            theme: props.theme,
+            screenProps: props.screenProps
+        };
 
-    componentDidMount() {
-        if (Auth.getInstance().getLoaded()) {
-            this.state.navigation.navigate("Main");
-        } else {
-            this.state.navigation.navigate("Login");
-        }   
+        
+        Auth.getInstance().then((auth) => {
+            if (auth.getLoaded()) {
+                this.state.navigation.navigate("Main");
+            } else {
+                this.state.navigation.navigate("Login");
+            } 
+        });
     }
 
     render() {

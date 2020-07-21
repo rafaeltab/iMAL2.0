@@ -33,12 +33,13 @@ class Login extends React.Component<NavigationDrawerScreenProps, LoginState>{
     }
 
     private DoLogin() {
-        Auth.getInstance().Trylogin(this.state.email, this.state.pass).then((res) => {
-            if (res === true) {
-                this.state.navigator.navigate("Home");
-            }
-        });
-        
+        Auth.getInstance().then((auth) => {
+            auth.Trylogin(this.state.email, this.state.pass).then((res) => {
+                if (res === true) {
+                    this.state.navigator.navigate("Home");
+                }
+            });
+        });        
     }
 
     private DoSignup() {
