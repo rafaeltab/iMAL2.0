@@ -49,6 +49,7 @@ class Authentication {
 
     public setCode(uuid: string) {
         if (isUUID(uuid)) {
+            this.loaded = true;
             this.stateCode = uuid;
         } else {
             throw new Error("param uuid is not correct format");
@@ -65,8 +66,8 @@ class Authentication {
         let url = `http://api.imal.ml/authed/login`;
         //the body of the request
         let body = {
-            email: email,
-            pass: password
+            email: email.replace(' ',''),
+            pass: password.replace(' ','')
         }
         //make the request
         let res = await fetch(url, {
@@ -99,8 +100,8 @@ class Authentication {
         let url = `http://api.imal.ml/authed/register`;
         //the body of the request
         let body = {
-            email: email,
-            pass: password
+            email: email.replace(' ',''),
+            pass: password.replace(' ','')
         }
         //make the request
         let res = await fetch(url, {
