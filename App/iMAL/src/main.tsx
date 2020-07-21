@@ -44,7 +44,9 @@ const App = ({ navigation } : NavigationStackScreenProps) => {
             <FlatList
                 data={items}
                 renderItem={(item) => (
-                    <AnimeList title={item.item.key} animeNodeSource={item.item.nodeSource} navigator={navigation} />
+                    <AnimeList title={item.item.key}
+                        animeNodeSource={item.item.nodeSource}
+                        navigator={navigation} />
                 )} />
         </SafeAreaProvider>      
     );

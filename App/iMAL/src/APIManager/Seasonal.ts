@@ -27,7 +27,6 @@ class SeasonalSource implements AnimeNodeSource{
         let auther = Authentication.getInstance();
         try {
             let url = `http://api.imal.ml/anime/seasonal?season=${this.season?this.season:"summer"}&year=${this.year?this.year:2020}&state=${auther.GetStateCode()}${limit?"&limit="+limit:""}${offset?"&offset="+offset:""}&sort=users`;
-
             let res: Response = await fetch(url);
             let json: JSONType = await res.json();
 

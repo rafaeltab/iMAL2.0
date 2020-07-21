@@ -1,2 +1,2 @@
-import App from './src/routes/MainStack';
+import App from './src/routes/Drawer';
 export default App;

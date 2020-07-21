@@ -3,14 +3,14 @@ import { isUUID } from './helper/FormatChecker';
 
 class Authentication {
     private static instance: Authentication;
-    private stateCode?: string = "3ecc7d96-36b0-4160-a68f-0d4ddc70bdce";
+    private stateCode?: string = "12ac8766-cc54-4360-b7c4-91cd1374daec";
 
     private constructor() {
         console.log("Starting Authenticator...");
         if(this.stateCode) {
             return;
         }
-
+        
         //try to load stateCode from local storage
         AsyncStorage.getItem("stateCode")
             .then((value) => {
