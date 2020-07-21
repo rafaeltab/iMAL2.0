@@ -19,13 +19,8 @@ class Authentication {
                     this.stateCode = value;
                 } else {
                     //value was not in localstorage so get it from the server
-                    this.StartAuthentication()
                 }
         });
-    }
-
-    private async StartAuthentication() {
-        //start authentication by asking the server for a link
     }
 
     public GetStateCode(): string | undefined {
