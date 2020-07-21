@@ -24,7 +24,6 @@ type AnimeListProps = {
 class AnimeList extends React.Component<AnimeListProps,AnimeListState> {
     constructor(props: AnimeListProps) {
         super(props);
-
         this.state = {
             title: props.title,
             data: [],
@@ -33,8 +32,7 @@ class AnimeList extends React.Component<AnimeListProps,AnimeListState> {
             offset:0
         };
         
-        this.state.animeNodeSource.MakeRequest(20)
-            .then((data) => {
+        this.state.animeNodeSource.MakeRequest(20).then((data) => {
             this.setState(old => {                
                 old.data.push(...data.data);
                 

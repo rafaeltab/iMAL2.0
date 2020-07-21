@@ -1,30 +1,24 @@
+/*
+All authentication screen stuff goes here
+*/
 import { createStackNavigator } from 'react-navigation-stack';
 import { createAppContainer, NavigationRouteConfigMap, NavigationRoute, NavigationParams, CreateNavigatorConfig, NavigationStackRouterConfig } from 'react-navigation';
-import Main from '../main';
 import { StackNavigationOptions, StackNavigationProp, StackNavigationConfig } from 'react-navigation-stack/lib/typescript/src/vendor/types';
-import AnimeDetails from '../screens/AnimeDetails';
+import Register from '../screens/Register';
+import Login from '../screens/Login';
 
 const screens : NavigationRouteConfigMap<StackNavigationOptions,StackNavigationProp<NavigationRoute<NavigationParams>>,unknown>  = {
-    Main: {
-        screen: Main
+    Login: {
+        screen: Login
     },
-    Details: {
-        screen: AnimeDetails
+    Register: {
+        screen: Register
     }
 }
 
 const defaultOptions: CreateNavigatorConfig<StackNavigationConfig, NavigationStackRouterConfig, StackNavigationOptions, StackNavigationProp<NavigationRoute<NavigationParams>, NavigationParams>> | undefined = {
-    defaultNavigationOptions: {
-        headerStyle: {
-            backgroundColor: '#2E51A2'            
-        },
-        headerTintColor: 'white',
-        headerTitleAlign: 'center',
-        title: "iMAL"
-        
-    },
-    headerMode: "screen"
+    headerMode: "none"
 }
 
-const MainStack = createStackNavigator(screens, defaultOptions);
-export default MainStack;
+const AuthStack = createStackNavigator(screens, defaultOptions);
+export default AuthStack;
