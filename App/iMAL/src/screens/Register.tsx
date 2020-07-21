@@ -37,11 +37,11 @@ class Register extends React.Component<NavigationDrawerScreenProps, RegisterStat
         this.setState({...this.state,retype: newstr});
     }
 
-    private DoSignin() {
+    private DoSignup() {
         this.state.navigator.navigate("Home");
     }
 
-    private DoSignup() {
+    private DoSignin() {
         this.state.navigator.goBack();
     }
 
@@ -52,18 +52,18 @@ class Register extends React.Component<NavigationDrawerScreenProps, RegisterStat
                 <View style={styles.content}>
                     <Text style={styles.head}>Sign up</Text>
                     <TextInput onChangeText={this.changeEmail.bind(this)}
-                        placeholder="email"
+                        placeholder="Email"
                         autoCompleteType="email"
                         style={styles.Input}
                         value={this.state.email} />
                     <TextInput onChangeText={this.changePass.bind(this)}
-                        placeholder="password"
+                        placeholder="Password"
                         autoCompleteType="password"
                         secureTextEntry
                         style={styles.Input}
                         value={this.state.pass} />
                     <TextInput onChangeText={this.changeRetype.bind(this)}
-                        placeholder="retype password"
+                        placeholder="Retype Password"
                         autoCompleteType="password"
                         secureTextEntry
                         style={styles.Input}
@@ -71,7 +71,7 @@ class Register extends React.Component<NavigationDrawerScreenProps, RegisterStat
                     <TouchableOpacity
                         style={styles.SignupButton}
                         activeOpacity={0.6}
-                        onPress={this.DoSignin.bind(this)}>
+                        onPress={this.DoSignup.bind(this)}>
                         <Text style={styles.SignupButtonText}>Sign up</Text>
                     </TouchableOpacity>
                     <Text style={{color:'white'}}>
@@ -80,7 +80,7 @@ class Register extends React.Component<NavigationDrawerScreenProps, RegisterStat
                     <TouchableOpacity
                         style={styles.LoginButton}
                         activeOpacity={0.6}
-                        onPress={this.DoSignup.bind(this)}>
+                        onPress={this.DoSignin.bind(this)}>
                         <Text style={styles.LoginButtonText}>Login</Text>
                     </TouchableOpacity>
                 </View>
@@ -103,7 +103,8 @@ const styles = StyleSheet.create({
     },
     head: {
         color: 'white',
-        fontSize: 60
+        fontSize: 60,
+        fontFamily: 'AGRevueCyr'
     },
     Input: {
         width: 250,
