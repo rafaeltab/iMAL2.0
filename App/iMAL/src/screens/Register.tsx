@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, Button, View, TextInput, Linking,  } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import React from 'react';
+import { StyleSheet, Text, View, TextInput, Linking,  } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationDrawerScreenProps, NavigationDrawerProp } from 'react-navigation-drawer';
 import {Dimensions } from "react-native";
-import { StackNavigationProp } from 'react-navigation-stack/lib/typescript/src/vendor/types';
 import { NavigationRoute, NavigationParams } from 'react-navigation';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Auth from '../APIManager/Authenticate';
-import { WebBrowser } from 'expo';
 import PasswordStrength from '../components/PasswordStrength';
 
 type RegisterState = {
@@ -158,26 +156,5 @@ const styles = StyleSheet.create({
         fontWeight: "bold"
     }
 });
-
-/* not rouned
-width: 250,
-height: 50,
-borderBottomColor: 'white',
-borderBottomWidth: 1,
-color: 'white',
-fontSize: 20,
-marginTop:20
-*/
-/* rounded:
-width: 250,
-height: 50,
-borderColor: 'white',
-borderWidth: 1,
-borderRadius: 25,
-paddingLeft: 20,
-color: 'white',
-fontSize: 20,
-marginTop:10
-*/
 
 export default Register;
