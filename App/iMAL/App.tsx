@@ -11,6 +11,7 @@ const getFonts = () => Font.loadAsync({
     'AGRevueCyr': require('./assets/fonts/AGRevueCyr.ttf')
 });
 
+//Authentication.ClearAsync();
 const prefix = Linking.makeUrl("/");
 
 type StateType = {

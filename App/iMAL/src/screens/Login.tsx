@@ -61,6 +61,7 @@ class Login extends React.Component<NavigationDrawerScreenProps, LoginState>{
                         placeholder="Password"
                         autoCompleteType="password"
                         secureTextEntry
+                        
                         style={styles.Input}
                         value={this.state.pass} />
                     <TouchableOpacity

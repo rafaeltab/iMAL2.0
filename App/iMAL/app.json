@@ -17,7 +17,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.rafaeltab.iMAL"
     },
     "web": {
       "favicon": "./assets/favicon.png"
