@@ -20,7 +20,8 @@ type DictData = {
 type RegisterData = {
     email: string,
     pass: string,
-    verifier: string
+    verifier: string,
+    redirect?: string
 }
 
 type DictEntry = {
@@ -42,7 +43,7 @@ export class UserManager {
     }
 
     /** Start the registration, returns url for authentication */
-    public async StartRegister(email: string, password: string): Promise<string> {
+    public async StartRegister(email: string, password: string, redirect?: string): Promise<string> {
         //Check format for email and password
         const emailReg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         if (!email.match(emailReg)) {
@@ -66,7 +67,8 @@ export class UserManager {
             data: {
                 email: email,
                 pass: password,
-                verifier: codeVerifier
+                verifier: codeVerifier,
+                redirect: redirect
             }
         }
         //add the entry to the dict with the uuid
@@ -124,9 +126,14 @@ export class UserManager {
 
         //get the token data in correct type
         let tokenData = <tokenResponse>tokens;
-
+        
         //All good so add user to the database
         Database.GetInstance().CreateUser(uuid, dictData.email, dictData.pass, tokenData.access_token, tokenData.refresh_token);
+
+        if(dictData.redirect){
+            return `${dictData.redirect}${uuid}`;
+        }
+
         //return `imal://${uuid}`;
         return `imal://auth/${uuid}`;
     }
