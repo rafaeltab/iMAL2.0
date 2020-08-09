@@ -26,7 +26,9 @@ export class AuthedController {
             let email = BodyOrUrlParams.RequiredString("email", req);
             let pass = BodyOrUrlParams.RequiredString("pass", req);
 
-            UserManager.GetInstance().StartRegister(email, pass).then((url) => {
+            let redirect = BodyOrUrlParams.OptionalString("redirect", req);
+
+            UserManager.GetInstance().StartRegister(email, pass, redirect).then((url) => {
                 //log that we are starting an auth for an ip with the state
                 Logger.Info(`Starting auth for ${req.ip}`);
                 //send the url and uuid to the user
