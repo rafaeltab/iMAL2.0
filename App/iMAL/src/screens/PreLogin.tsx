@@ -4,8 +4,8 @@ import {Dimensions } from "react-native";
 import { NavigationDrawerScreenProps } from 'react-navigation-drawer';
 import Auth from '../APIManager/Authenticate';
 
-//Auth.devMode = false;
-//Auth.ClearAsync();
+Auth.devMode = false;
+Auth.ClearAsync();
 
 class PreLogin extends React.Component<NavigationDrawerScreenProps,NavigationDrawerScreenProps> {
     constructor(props: NavigationDrawerScreenProps) {

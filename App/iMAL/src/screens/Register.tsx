@@ -8,6 +8,7 @@ import { NavigationRoute, NavigationParams } from 'react-navigation';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Auth from '../APIManager/Authenticate';
 import { WebBrowser } from 'expo';
+import PasswordStrength from '../components/PasswordStrength';
 
 type RegisterState = {
     navigator: NavigationDrawerProp<NavigationRoute<NavigationParams>, NavigationParams>,
@@ -70,14 +71,18 @@ class Register extends React.Component<NavigationDrawerScreenProps, RegisterStat
                         placeholder="Password"
                         autoCompleteType="password"
                         secureTextEntry
+                        passwordRules="required: lower; required: upper; required digit; required: [~!@#$%^*_-+=`|(){}[:;'<>,.? \]]; minlength: 8;"
+                        spellCheck={false}
                         style={styles.Input}
                         value={this.state.pass} />
+                    <PasswordStrength pass={this.state.pass} />
                     <TextInput onChangeText={this.changeRetype.bind(this)}
                         placeholder="Retype Password"
                         autoCompleteType="password"
                         secureTextEntry
+                        spellCheck={false}
                         style={styles.Input}
-                        value={this.state.retype} />
+                        value={this.state.retype} />                    
                     <TouchableOpacity
                         style={styles.SignupButton}
                         activeOpacity={0.6}
