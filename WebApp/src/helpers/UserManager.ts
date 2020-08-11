@@ -127,8 +127,16 @@ export class UserManager {
         //get the token data in correct type
         let tokenData = <tokenResponse>tokens;
         
-        //All good so add user to the database
+        //All good so add user to the database and update codeDict
         Database.GetInstance().CreateUser(uuid, dictData.email, dictData.pass, tokenData.access_token, tokenData.refresh_token);
+        this.codeDict.set(uuid,{
+            state: "done",
+            data: {
+                token: tokenData.access_token,
+                RefreshToken: tokenData.refresh_token,
+                email: dictData.email
+            }
+        });
 
         if(dictData.redirect){
             return `${dictData.redirect}${uuid}`;
