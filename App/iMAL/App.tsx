@@ -6,6 +6,7 @@ import * as Linking from 'expo-linking';
 import { AppState, AppStateStatus } from 'react-native';
 import Authentication from './src/APIManager/Authenticate';
 import { NavigationDrawerScreenProps } from 'react-navigation-drawer';
+import { setTopLevelNavigator, navigate } from './src/APIManager/helper/NavigationService';
 
 const getFonts = () => Font.loadAsync({
     'AGRevueCyr': require('./assets/fonts/AGRevueCyr.ttf')
@@ -21,7 +22,7 @@ type StateType = {
 }
 
 export default class Application extends React.Component<NavigationDrawerScreenProps, StateType>{
-    constructor(props: NavigationDrawerScreenProps) {
+    constructor(props: NavigationDrawerScreenProps) {        
         super(props);
         this.state = {
             fonts: false,
@@ -31,16 +32,16 @@ export default class Application extends React.Component<NavigationDrawerScreenP
     }
 
     componentDidMount() {
-        this._checkInitialUrl()
+        this._checkInitialUrl();
 
-        AppState.addEventListener('change', this._handleAppStateChange)
+        AppState.addEventListener('change', this._handleAppStateChange);
         Linking.addEventListener('url', (ss) => {
             this._handleUrl(ss.url);
         })
     }
 
     componentWillUnmount() {
-        AppState.removeEventListener('change', this._handleAppStateChange)
+        AppState.removeEventListener('change', this._handleAppStateChange);
     }
 
     private _handleAppStateChange = async (nextAppState: AppStateStatus) => {
@@ -51,28 +52,33 @@ export default class Application extends React.Component<NavigationDrawerScreenP
     }
 
     private _checkInitialUrl = async () => {
-        const url = await this._getInitialUrl()
-        this._handleUrl(url)
-    }
-
-    private _getInitialUrl = async () => {
-        const url = await Linking.getInitialURL()
-        return url
+        const url = await Linking.getInitialURL();
+        if(url?.includes("auth")){
+            this._handleUrl(url);
+        }        
     }
 
     private _handleUrl = (url: string | null) => {
-        console.log(`reaceived url ${url}`);
+        console.log(`received url ${url}`);
         if (url != null) {
-            let uuid = url.split("auth/")[1];
-            console.log(uuid)
-            Authentication.getInstance().then((auth) => {
-                console.log("save");
-                auth.setCode(uuid);
-                console.log("Change page");
-                this.state.drawerProps.navigation.navigate("Home");
-            }).catch((e) => {
-
-            });
+            if(url.includes("auth")){
+                let uuid = url.split("auth/")[1];
+                console.log(uuid)
+                Authentication.getInstance().then((auth) => {
+                    console.log("save");
+                    auth.setCode(uuid);
+                    console.log("Change page");
+                    try{
+                        navigate("Main",undefined);
+                    }catch(e){
+                        console.log(e);
+                    }
+                    
+                    console.log("changed?");
+                }).catch((e) => {
+                    
+                });
+            }
         }
     }
 
@@ -80,10 +86,16 @@ export default class Application extends React.Component<NavigationDrawerScreenP
         const setFontsLoaded = (yes: boolean) => {
             this.setState({ ...this.state, fonts: yes });
         }
-
         if (this.state.fonts) {
             return (
-                <App uriPrefix={prefix} enableURLHandling={false} />
+                <App 
+                uriPrefix={prefix} 
+                enableURLHandling={false}
+                ref={navigationRef => {
+                    if(navigationRef != null){
+                        setTopLevelNavigator(navigationRef);
+                    }                   
+                }}/>
             );
         } else {
             return (

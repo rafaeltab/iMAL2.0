@@ -14,6 +14,14 @@ type JSONType = {
     }
 }
 
+function isIterable(obj: any) {
+    // checks for null and undefined
+    if (obj == null) {
+      return false;
+    }
+    return typeof obj[Symbol.iterator] === 'function';
+  }
+
 class SeasonalSource implements AnimeNodeSource{
     private year?: number;
     private season?: "winter" | "summer" | "spring" | "fall";
@@ -30,8 +38,13 @@ class SeasonalSource implements AnimeNodeSource{
             let url = `http://api.imal.ml/anime/seasonal?season=${this.season?this.season:"summer"}&year=${this.year?this.year:2020}&state=${stateCode}${limit?"&limit="+limit:""}${offset?"&offset="+offset:""}&sort=users`;
             let res: Response = await fetch(url);
             let json: JSONType = await res.json();
-
-            return json;
+            if(isIterable(json)){
+                return json;
+            }else{
+                console.log(json);
+                throw json;
+            }
+            
         } catch (e) {}
 
         return {

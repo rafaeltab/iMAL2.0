@@ -5,7 +5,7 @@ import { StackNavigationOptions, StackNavigationProp, StackNavigationConfig } fr
 import AnimeDetails from '../screens/AnimeDetails';
 
 const screens : NavigationRouteConfigMap<StackNavigationOptions,StackNavigationProp<NavigationRoute<NavigationParams>>,unknown>  = {
-    Main: {
+    Home: {
         screen: Main
     },
     Details: {

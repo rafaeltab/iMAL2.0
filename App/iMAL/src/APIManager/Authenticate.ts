@@ -1,5 +1,6 @@
 import { AsyncStorage, Alert } from 'react-native';
 import { isUUID } from './helper/FormatChecker';
+import * as Linking from 'expo-linking';
 
 type JsonType = {
     status: "success" | "error",
@@ -99,9 +100,27 @@ class Authentication {
         //url to make request to
         let url = `http://api.imal.ml/authed/register`;
         //the body of the request
+
+        const expoScheme = "imal://"
+        // Technically you need to pass the correct redirectUrl to the web browser.
+        let redir = Linking.makeUrl();
+        if (redir.startsWith('exp://1')) {
+            // handle simulator(localhost) and device(Lan)
+            redir = redir + '/--/';
+        } else
+        if (redir === expoScheme) {
+            // dont do anything
+        } else {
+            // handle the expo client
+            redir = redir + '/'
+        }
+
+        redir += "auth/"
+        console.log("made url: " + redir);
         let body = {
             email: email.replace(' ',''),
-            pass: password.replace(' ','')
+            pass: password.replace(' ',''),
+            redirect: redir
         }
         //make the request
         let res = await fetch(url, {
