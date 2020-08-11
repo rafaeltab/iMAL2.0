@@ -19,7 +19,7 @@ const RootDrawerNavigator = createDrawerNavigator({
             drawerLockMode: "locked-closed",
         }
     },
-    Home: {
+    Main: {
         screen: MainStack
     }
 });

@@ -1,10 +1,10 @@
 {
   "devToolsPort": 19002,
-  "expoServerPort": null,
-  "packagerPort": null,
-  "packagerPid": null,
-  "expoServerNgrokUrl": null,
-  "packagerNgrokUrl": null,
-  "ngrokPid": null,
+  "expoServerPort": 19000,
+  "packagerPort": 19001,
+  "packagerPid": 18876,
+  "expoServerNgrokUrl": "https://rv-g4g.anonymous.imal.exp.direct",
+  "packagerNgrokUrl": "https://packager.rv-g4g.anonymous.imal.exp.direct",
+  "ngrokPid": 23636,
   "webpackServerPort": null
 }
