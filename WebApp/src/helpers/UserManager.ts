@@ -24,10 +24,28 @@ type RegisterData = {
     redirect?: string
 }
 
-type DictEntry = {
-    state: "done" | "pending" | "errored" | "canceled",
-    data?: DictData | RegisterData
+type VerifData = {
+    email: string,
+    pass: string,
+    code: string,
+    attempt: number
 }
+
+type DictEntry = {
+    state: "done" | "pending" | "errored" | "canceled" | "verif",
+    data?: DictData | RegisterData | VerifData
+}
+
+function makeVerifCode() {
+    let length = 6;
+    var result           = '';
+    var characters       = '0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+ }
 
 export class UserManager {
     private codeDict: Map<string, DictEntry>;
@@ -60,18 +78,60 @@ export class UserManager {
 
         //Create a uuid and code verifier
         let uuid = getUUID();
-        let codeVerifier: string = getPKCE(128);
+        let code = makeVerifCode();
         //create a dict entry with state pendign and the email, password and verifier
         let dictEntry: DictEntry = {
-            state: "pending",
+            state: "verif",
             data: {
                 email: email,
                 pass: password,
+                code: code,
+                attempt: 0
+            }
+        }
+
+        //add the entry to the dict with the uuid
+        this.codeDict.set(uuid, dictEntry);
+        setTimeout(() => {
+            let dictEntry = <DictEntry>this.codeDict.get(uuid);
+            if (dictEntry.state == "verif") {
+                this.codeDict.delete(uuid);
+            }
+        }, 10 * 60 * 1000);
+        //return the authentication url
+        return uuid;
+    }
+
+    public async DoVerif(uuid: string, code: string, redirect? : string) : Promise<string>{
+        if(!this.codeDict.has(uuid)) throw new Error("verif uuid doesn't exist");
+
+        let dictVal = <DictEntry>this.codeDict.get(uuid);
+        if(dictVal.state != "verif") throw new Error("uuid is not a verif uuid")
+
+        let verifVal: {state:"verif",data: VerifData} = (dictVal as {state:"verif",data: VerifData});
+        if(code != verifVal.data.code) {
+            verifVal.data.attempt++;
+
+            if(verifVal.data.attempt > 4){
+                this.codeDict.delete(uuid);
+                throw new Error("Too many attempts");
+            }
+            throw new Error("Incorrect code");            
+        }
+
+        let codeVerifier: string = getPKCE(128);
+
+        this.codeDict.delete(uuid);
+        let dictEntry: DictEntry = {
+            state: "pending",
+            data: {
+                email: verifVal.data.email,
+                pass: verifVal.data.pass,
                 verifier: codeVerifier,
                 redirect: redirect
             }
         }
-        //add the entry to the dict with the uuid
+
         this.codeDict.set(uuid, dictEntry);
         setTimeout(() => {
             let dictEntry = <DictEntry>this.codeDict.get(uuid);
@@ -79,12 +139,12 @@ export class UserManager {
                 this.codeDict.delete(uuid);
             }
         }, 10 * 60 * 1000);
-        //return the authentication url
+
         return `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${CLIENT_ID}&code_challenge=${codeVerifier}&state=${uuid}&redirect_uri=${process.env.LOCALMODE ? "http://localhost:3000/authed" : "http://api.imal.ml/authed"}`;
     }
 
     /** Check and load state of uuid */
-    public async CheckUUID(uuid: string): Promise<"pending" | "done" | "errored" | "canceled"> {
+    public async CheckUUID(uuid: string): Promise<"pending" | "done" | "errored" | "canceled" | "verif"> {
         if (this.codeDict.has(uuid)) {
             let entry = <DictEntry>this.codeDict.get(uuid);
             return entry.state;

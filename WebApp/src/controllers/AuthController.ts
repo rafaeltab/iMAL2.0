@@ -4,6 +4,7 @@ import { Logger } from '@overnightjs/logger';
 import { ERROR_STATUS, SUCCESS_STATUS } from '../helpers/GLOBALVARS';
 import { UserManager } from '../helpers/UserManager';
 import { BodyOrUrlParams } from '../helpers/RequestHelper';
+import * as MailHelper from '../helpers/MailHelper';
 
 //Main controller
 @Controller('authed')
@@ -16,6 +17,12 @@ export class AuthedController {
             status: SUCCESS_STATUS,
             message: "Logged succesfully"
         });
+    }
+
+    @Get("testmail")
+    private testMail(req: Request, res: Response) {
+        MailHelper.Setup();
+        res.status(200).send("email ok yes yes?");
     }
 
     //endpoint for registering a new user
