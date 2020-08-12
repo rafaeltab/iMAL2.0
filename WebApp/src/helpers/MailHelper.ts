@@ -8,3 +8,17 @@ export function Setup(){
     }    
     console.log("api key not set\n: " + JSON.stringify(process.env));
 }
+
+export function SendMail(){
+    const msg = {
+        to: 'rafael@rafaeltab.com',
+        from: 'mail@imal.ml',
+        subject: 'Test Email',
+        text: 'test 1 2 3'
+    }
+    try{
+        sgMail.send(msg);
+    }catch(e){
+        console.log(e);
+    }
+}
