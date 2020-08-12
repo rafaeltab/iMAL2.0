@@ -6,7 +6,6 @@ export function Setup(){
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
         return;
     }    
-    console.log("api key not set\n: " + JSON.stringify(process.env));
 }
 
 export function SendMail(){

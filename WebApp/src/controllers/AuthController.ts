@@ -22,6 +22,7 @@ export class AuthedController {
     @Get("testmail")
     private testMail(req: Request, res: Response) {
         MailHelper.Setup();
+        MailHelper.SendMail();
         res.status(200).send("email ok yes yes?");
     }
 
