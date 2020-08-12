@@ -1,14 +1,14 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 import {Dimensions } from "react-native";
-import { NavigationDrawerScreenProps } from 'react-navigation-drawer';
 import Auth from '../APIManager/Authenticate';
+import { NavigationSwitchScreenProps } from 'react-navigation';
 
 Auth.devMode = false;
 Auth.ClearAsync();
 
-class PreLogin extends React.Component<NavigationDrawerScreenProps,NavigationDrawerScreenProps> {
-    constructor(props: NavigationDrawerScreenProps) {
+class PreLogin extends React.Component<NavigationSwitchScreenProps,NavigationSwitchScreenProps> {
+    constructor(props: NavigationSwitchScreenProps) {
         super(props);
         this.state = {
             navigation: props.navigation,

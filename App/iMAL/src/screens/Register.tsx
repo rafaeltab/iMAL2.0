@@ -7,16 +7,18 @@ import { NavigationRoute, NavigationParams } from 'react-navigation';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Auth from '../APIManager/Authenticate';
 import PasswordStrength from '../components/PasswordStrength';
+import { NavigationStackScreenProps } from 'react-navigation-stack';
+import { StackNavigationProp } from 'react-navigation-stack/lib/typescript/src/vendor/types';
 
 type RegisterState = {
-    navigator: NavigationDrawerProp<NavigationRoute<NavigationParams>, NavigationParams>,
+    navigator: StackNavigationProp<NavigationRoute<NavigationParams>, NavigationParams>,
     email: string,
     pass: string,
     retype: string
 }
 
-class Register extends React.Component<NavigationDrawerScreenProps, RegisterState>{
-    constructor(props: NavigationDrawerScreenProps) {
+class Register extends React.Component<NavigationStackScreenProps, RegisterState>{
+    constructor(props: NavigationStackScreenProps) {
         super(props);
         this.state = {
             navigator: props.navigation,

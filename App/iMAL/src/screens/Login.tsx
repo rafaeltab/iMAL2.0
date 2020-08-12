@@ -6,16 +6,18 @@ import {Dimensions } from "react-native";
 import { NavigationRoute, NavigationParams } from 'react-navigation';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Auth from '../APIManager/Authenticate';
+import { StackNavigationProp } from 'react-navigation-stack/lib/typescript/src/vendor/types';
+import { NavigationStackScreenProps } from 'react-navigation-stack';
 
 
 type LoginState = {
-    navigator: NavigationDrawerProp<NavigationRoute<NavigationParams>, NavigationParams>,
+    navigator: StackNavigationProp<NavigationRoute<NavigationParams>, NavigationParams>,
     email: string,
     pass: string
 }
 
-class Login extends React.Component<NavigationDrawerScreenProps, LoginState>{
-    constructor(props: NavigationDrawerScreenProps) {
+class Login extends React.Component<NavigationStackScreenProps, LoginState>{
+    constructor(props: NavigationStackScreenProps) {
         super(props);
         this.state = {
             navigator: props.navigation,
