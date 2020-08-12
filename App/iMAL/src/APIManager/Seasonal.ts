@@ -38,12 +38,14 @@ class SeasonalSource implements AnimeNodeSource{
             let url = `http://api.imal.ml/anime/seasonal?season=${this.season?this.season:"summer"}&year=${this.year?this.year:2020}&state=${stateCode}${limit?"&limit="+limit:""}${offset?"&offset="+offset:""}&sort=users`;
             let res: Response = await fetch(url);
             let json: JSONType = await res.json();
-            if(isIterable(json)){
+            let ret = (json as JSONType);
+            if(ret.data && isIterable(ret.data)){
                 return json;
             }else{
                 console.log(json);
                 throw json;
             }
+            
             
         } catch (e) {}
 

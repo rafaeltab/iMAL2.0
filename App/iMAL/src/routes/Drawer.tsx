@@ -11,14 +11,6 @@ class Hidden extends React.Component {
 }
 
 const RootDrawerNavigator = createDrawerNavigator({
-    Auth: {
-        screen: AuthStack,
-        //path: "",
-        navigationOptions: {
-            //drawerLabel: <Hidden />,
-            drawerLockMode: "locked-closed",
-        }
-    },
     Main: {
         screen: MainStack
     }

@@ -1,6 +1,6 @@
-import App from './src/routes/Drawer';
+import App from './src/routes/Switch';
 import * as Font from 'expo-font';
-import React, { useState } from 'react';
+import React from 'react';
 import { AppLoading } from 'expo';
 import * as Linking from 'expo-linking';
 import { AppState, AppStateStatus } from 'react-native';
