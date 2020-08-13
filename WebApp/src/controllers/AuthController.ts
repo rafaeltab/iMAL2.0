@@ -4,7 +4,6 @@ import { Logger } from '@overnightjs/logger';
 import { ERROR_STATUS, SUCCESS_STATUS } from '../helpers/GLOBALVARS';
 import { UserManager } from '../helpers/UserManager';
 import { BodyOrUrlParams } from '../helpers/RequestHelper';
-import * as MailHelper from '../helpers/MailHelper';
 
 //Main controller
 @Controller('authed')
@@ -19,13 +18,7 @@ export class AuthedController {
         });
     }
 
-    @Get("testmail")
-    private testMail(req: Request, res: Response) {
-        MailHelper.Setup();
-        MailHelper.SendMail();
-        res.status(200).send("email ok yes yes?");
-    }
-
+            
     //endpoint for registering a new user
     @Post("register")
     private Register(req: Request, res: Response) {
@@ -34,12 +27,38 @@ export class AuthedController {
             let email = BodyOrUrlParams.RequiredString("email", req);
             let pass = BodyOrUrlParams.RequiredString("pass", req);
 
-            let redirect = BodyOrUrlParams.OptionalString("redirect", req);
-
-            UserManager.GetInstance().StartRegister(email, pass, redirect).then((url) => {
+            UserManager.GetInstance().StartRegister(email, pass).then((uuid) => {
                 //log that we are starting an auth for an ip with the state
                 Logger.Info(`Starting auth for ${req.ip}`);
-                //send the url and uuid to the user
+                //send the uuid to the user
+                res.status(200).json({
+                    status: SUCCESS_STATUS,
+                    message: uuid
+                });
+            }).catch((e) => {
+                res.status(500).json({
+                    status: ERROR_STATUS,
+                    message: e.message
+                });
+            });
+        } catch (e) {
+            res.status(422).json({
+                status: ERROR_STATUS,
+                message: e.message
+            });
+        }
+        
+    }
+
+    @Post("verif")
+    private Verif(req: Request, res: Response){
+        try{
+            let uuid = BodyOrUrlParams.RequiredString("uuid", req);
+            let code = BodyOrUrlParams.RequiredString("code", req);
+
+            let redirect = BodyOrUrlParams.OptionalString("redirect", req);
+
+            UserManager.GetInstance().DoVerif(uuid,code,redirect).then((url) => {
                 res.status(200).json({
                     status: SUCCESS_STATUS,
                     message: url

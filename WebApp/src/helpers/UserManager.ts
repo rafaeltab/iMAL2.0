@@ -6,6 +6,7 @@ import { Database } from './database/Database';
 import { Logger } from '@overnightjs/logger';
 import { Request, Response } from 'express';
 import { BodyOrUrlParams } from './RequestHelper';
+import * as MailHelper from '../helpers/MailHelper';
 
 /*
 Manage all user data
@@ -61,7 +62,7 @@ export class UserManager {
     }
 
     /** Start the registration, returns url for authentication */
-    public async StartRegister(email: string, password: string, redirect?: string): Promise<string> {
+    public async StartRegister(email: string, password: string): Promise<string> {
         //Check format for email and password
         const emailReg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         if (!email.match(emailReg)) {
@@ -89,6 +90,8 @@ export class UserManager {
                 attempt: 0
             }
         }
+
+        MailHelper.SendHtml(email,"Verification imal",`<b>Your verification code is ${code}</b>`,"verification@imal.ml");
 
         //add the entry to the dict with the uuid
         this.codeDict.set(uuid, dictEntry);
