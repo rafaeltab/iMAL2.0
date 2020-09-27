@@ -1,4 +1,4 @@
-import App from './src/routes/Switch';
+import App from './src/routes/RootNavigator';
 import * as Font from 'expo-font';
 import React from 'react';
 import { AppLoading } from 'expo';
@@ -12,7 +12,6 @@ const getFonts = () => Font.loadAsync({
     'AGRevueCyr': require('./assets/fonts/AGRevueCyr.ttf')
 });
 
-//Authentication.ClearAsync();
 const prefix = Linking.makeUrl("/");
 
 type StateType = {

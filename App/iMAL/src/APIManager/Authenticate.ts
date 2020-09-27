@@ -101,26 +101,9 @@ class Authentication {
         let url = `http://api.imal.ml/authed/register`;
         //the body of the request
 
-        const expoScheme = "imal://"
-        // Technically you need to pass the correct redirectUrl to the web browser.
-        let redir = Linking.makeUrl();
-        if (redir.startsWith('exp://1')) {
-            // handle simulator(localhost) and device(Lan)
-            redir = redir + '/--/';
-        } else
-        if (redir === expoScheme) {
-            // dont do anything
-        } else {
-            // handle the expo client
-            redir = redir + '/'
-        }
-
-        redir += "auth/"
-        console.log("made url: " + redir);
         let body = {
             email: email.replace(' ',''),
-            pass: password.replace(' ',''),
-            redirect: redir
+            pass: password.replace(' ','')
         }
         //make the request
         let res = await fetch(url, {
@@ -139,6 +122,53 @@ class Authentication {
         }
 
         return json.message;
+    }
+
+    public async TryVerif(uuid:string,code: string) : Promise<string>{
+        //url to make request to
+        let url = `http://api.imal.ml/authed/register`;
+        //the body of the request
+
+        let body = {
+            uuid: uuid,
+            code: code,
+            redirect: this.MakeRedirect()
+        }
+        //make the request
+        let res = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        });
+        //is the response an error !?!?!?
+        let json: JsonType = await res.json();
+        if (json.status == "error") {
+            //oh fuck
+            Alert.alert("Something bad happened",json.message);
+            return "";
+        }
+
+        return json.message;
+    }
+
+    private MakeRedirect(): string{
+        const expoScheme = "imal://"
+        // Technically you need to pass the correct redirectUrl to the web browser.
+        let redir = Linking.makeUrl();
+        if (redir.startsWith('exp://1')) {
+            // handle simulator(localhost) and device(Lan)
+            redir = redir + '/--/';
+        } else
+        if (redir === expoScheme) {
+            // dont do anything
+        } else {
+            // handle the expo client
+            redir = redir + '/';
+        }
+
+        return redir + "auth/";
     }
 
     static async getInstance(): Promise<Authentication> {

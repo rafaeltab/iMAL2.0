@@ -1,51 +1,55 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput} from 'react-native';
+import { StyleSheet, Text, View, TextInput,  } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { NavigationDrawerScreenProps, NavigationDrawerProp } from 'react-navigation-drawer';
 import {Dimensions } from "react-native";
-import { NavigationRoute, NavigationParams } from 'react-navigation';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import Auth from '../APIManager/Authenticate';
-import { StackNavigationProp } from 'react-navigation-stack/lib/typescript/src/vendor/types';
+import Auth from '../../APIManager/Authenticate';
+import PasswordStrength from '../../components/PasswordStrength';
 import { NavigationStackScreenProps } from 'react-navigation-stack';
 
-
-type LoginState = {
-    navigator: StackNavigationProp<NavigationRoute<NavigationParams>, NavigationParams>,
+type RegisterState = {
     email: string,
-    pass: string
+    pass: string,
+    retype: string
 }
 
-class Login extends React.Component<NavigationStackScreenProps, LoginState>{
+class Register extends React.Component<NavigationStackScreenProps, RegisterState>{
     constructor(props: NavigationStackScreenProps) {
         super(props);
         this.state = {
-            navigator: props.navigation,
             email: "",
-            pass: ""
+            pass: "",
+            retype: ""
         }
     }
 
     private changeEmail(newstr: string) {
-        this.setState({...this.state,email: newstr});
+        this.setState({ ...this.state, email: newstr });
+        
     }
 
     private changePass(newstr: string) {
         this.setState({...this.state,pass: newstr});
     }
 
-    private DoLogin() {
-        Auth.getInstance().then((auth) => {
-            auth.Trylogin(this.state.email, this.state.pass).then((res) => {
-                if (res === true) {
-                    this.state.navigator.navigate("Home");
-                }
-            });
-        });        
+    private changeRetype(newstr: string) {
+        this.setState({...this.state,retype: newstr});
     }
 
     private DoSignup() {
-        this.state.navigator.navigate("Register");
+        Auth.getInstance().then((auth) => {
+            auth.TryRegister(this.state.email, this.state.pass).then((res) => {
+                if (res != "") {
+                    //we got the uuid for the verification
+                    //OLD: Linking.openURL(res);
+                    this.props.navigation.replace("Verif");
+                }
+            });
+        }); 
+    }
+
+    private DoSignin() {
+        this.props.navigation.goBack();
     }
 
     render() {
@@ -53,7 +57,7 @@ class Login extends React.Component<NavigationStackScreenProps, LoginState>{
             <View style={styles.appContainer}>
                 <SafeAreaView style={styles.safeContainer} />
                 <View style={styles.content}>
-                    <Text style={styles.head}>iMAL</Text>
+                    <Text style={styles.head}>Sign up</Text>
                     <TextInput onChangeText={this.changeEmail.bind(this)}
                         placeholder="Email"
                         autoCompleteType="email"
@@ -63,23 +67,40 @@ class Login extends React.Component<NavigationStackScreenProps, LoginState>{
                         placeholder="Password"
                         autoCompleteType="password"
                         secureTextEntry
-                        
+                        passwordRules="required: lower; required: upper; required digit; required: [~!@#$%^*_-+=`|(){}[:;'<>,.? \]]; minlength: 8;"
+                        spellCheck={false}
                         style={styles.Input}
                         value={this.state.pass} />
-                    <TouchableOpacity
-                        style={styles.LoginButton}
-                        activeOpacity={0.6}
-                        onPress={this.DoLogin.bind(this)}>
-                        <Text style={styles.LoginButtonText}>Login</Text>
-                    </TouchableOpacity>
-                    <Text style={{color:'white'}}>
-                        No Account?
-                    </Text>
+                    <PasswordStrength pass={this.state.pass} />
+                    <TextInput onChangeText={this.changeRetype.bind(this)}
+                        placeholder="Retype Password"
+                        autoCompleteType="password"
+                        secureTextEntry
+                        spellCheck={false}
+                        style={styles.Input}
+                        value={this.state.retype} />                    
                     <TouchableOpacity
                         style={styles.SignupButton}
                         activeOpacity={0.6}
                         onPress={this.DoSignup.bind(this)}>
                         <Text style={styles.SignupButtonText}>Sign up</Text>
+                    </TouchableOpacity>
+                    <Text style={{color:'white'}}>
+                        Have an account?
+                    </Text>
+                    <TouchableOpacity
+                        style={styles.LoginButton}
+                        activeOpacity={0.6}
+                        onPress={this.DoSignin.bind(this)}>
+                        <Text style={styles.LoginButtonText}>Login</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.LoginButton}
+                        activeOpacity={0.6}
+                        onPress={a => {
+                            this.props.navigation.navigate("Verify");
+                        }}>
+                        <Text style={styles.LoginButtonText}>Go To verif</Text>
                     </TouchableOpacity>
                 </View>
             </View> 
@@ -89,10 +110,10 @@ class Login extends React.Component<NavigationStackScreenProps, LoginState>{
 
 const styles = StyleSheet.create({
     appContainer: {
-        backgroundColor: "#2e51a2"
+        backgroundColor: "#1a1a1a"
     },
     safeContainer: {
-        backgroundColor: "#2e51a2"
+        backgroundColor: "#1a1a1a"
     },
     content: {
         height: Dimensions.get('window').height,
@@ -113,54 +134,33 @@ const styles = StyleSheet.create({
         fontSize: 20,
         marginTop:15
     },
-    LoginButton: {
-        borderRadius: 4,
-        backgroundColor: '#eb6100',
-        paddingHorizontal: 97,
-        paddingVertical: 10,
-        marginTop: 90,
-        marginBottom: 40,
-        color: 'white'
-    },
-    LoginButtonText: {
-        color: 'white',
-        fontSize: 18,
-        fontWeight: "bold"
-    },
     SignupButton: {
         borderRadius: 4,
-        backgroundColor: '#eb6100',
-        paddingHorizontal: 60,
-        paddingVertical: 6,
-        marginTop: 5,
+        backgroundColor: '#2e51a2',
+        paddingHorizontal: 97,
+        paddingVertical: 10,
+        marginTop: 40,
+        marginBottom: 40,
         color: 'white'
     },
     SignupButtonText: {
         color: 'white',
         fontSize: 18,
         fontWeight: "bold"
+    },
+    LoginButton: {
+        borderRadius: 4,
+        backgroundColor: '#2e51a2',
+        paddingHorizontal: 60,
+        paddingVertical: 6,
+        marginTop: 5,
+        color: 'white'
+    },
+    LoginButtonText: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: "bold"
     }
 });
 
-/* not rouned
-width: 250,
-height: 50,
-borderBottomColor: 'white',
-borderBottomWidth: 1,
-color: 'white',
-fontSize: 20,
-marginTop:20
-*/
-/* rounded:
-width: 250,
-height: 50,
-borderColor: 'white',
-borderWidth: 1,
-borderRadius: 25,
-paddingLeft: 20,
-color: 'white',
-fontSize: 20,
-marginTop:10
-*/
-
-export default Login;
+export default Register;

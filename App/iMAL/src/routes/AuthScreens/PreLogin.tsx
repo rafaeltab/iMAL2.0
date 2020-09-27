@@ -1,12 +1,12 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 import {Dimensions } from "react-native";
-import Auth from '../APIManager/Authenticate';
+import Auth from '../../APIManager/Authenticate';
 import { NavigationSwitchScreenProps } from 'react-navigation';
 
 //uncomment to reset saved uuid and go into developer mode for the Auth system
-//Auth.devMode = false;
-//Auth.ClearAsync();
+Auth.devMode = false;
+Auth.ClearAsync();
 
 class PreLogin extends React.Component<NavigationSwitchScreenProps,NavigationSwitchScreenProps> {
     constructor(props: NavigationSwitchScreenProps) {

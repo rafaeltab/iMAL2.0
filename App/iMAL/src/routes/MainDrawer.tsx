@@ -1,14 +1,6 @@
 import { createDrawerNavigator } from 'react-navigation-drawer';
 import { createAppContainer } from 'react-navigation';
-import MainStack from './MainStack';
-import AuthStack from './AuthStack';
-import React from 'react';
-
-class Hidden extends React.Component {
-    render() {
-        return null;
-    }
-}
+import MainStack from './HomeStack';
 
 const RootDrawerNavigator = createDrawerNavigator({
     Main: {

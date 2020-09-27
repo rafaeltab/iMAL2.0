@@ -1,8 +1,8 @@
 import { createStackNavigator } from 'react-navigation-stack';
-import { createAppContainer, NavigationRouteConfigMap, NavigationRoute, NavigationParams, CreateNavigatorConfig, NavigationStackRouterConfig } from 'react-navigation';
-import Main from '../main';
+import { NavigationRouteConfigMap, NavigationRoute, NavigationParams, CreateNavigatorConfig, NavigationStackRouterConfig } from 'react-navigation';
+import Main from './MainScreens/HomeScreen';
 import { StackNavigationOptions, StackNavigationProp, StackNavigationConfig } from 'react-navigation-stack/lib/typescript/src/vendor/types';
-import AnimeDetails from '../screens/AnimeDetails';
+import AnimeDetails from './MainScreens/AnimeDetails';
 
 const screens : NavigationRouteConfigMap<StackNavigationOptions,StackNavigationProp<NavigationRoute<NavigationParams>>,unknown>  = {
     Home: {
