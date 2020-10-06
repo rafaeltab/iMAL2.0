@@ -124,9 +124,9 @@ class Authentication {
         return json.message;
     }
 
-    public async TryVerif(uuid:string,code: string) : Promise<string>{
+    public async TryVerif(uuid:string,code: string) : Promise<JsonType>{
         //url to make request to
-        let url = `http://api.imal.ml/authed/register`;
+        let url = `http://api.imal.ml/authed/verif`;
         //the body of the request
 
         let body = {
@@ -147,10 +147,10 @@ class Authentication {
         if (json.status == "error") {
             //oh fuck
             Alert.alert("Something bad happened",json.message);
-            return "";
+            return json;
         }
 
-        return json.message;
+        return json;
     }
 
     private MakeRedirect(): string{

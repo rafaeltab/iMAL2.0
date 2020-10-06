@@ -17,6 +17,7 @@ class PreLogin extends React.Component<NavigationSwitchScreenProps,NavigationSwi
             screenProps: props.screenProps
         };
 
+        // this.state.navigation.navigate("Verify");
         
         Auth.getInstance().then((auth) => {
             if (auth.getLoaded()) {

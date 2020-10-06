@@ -20,6 +20,7 @@
     "react-dom": "~16.11.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-38.0.2.tar.gz",
     "react-native-code-input": "^1.0.6",
+    "react-native-confirmation-code-field": "^6.5.0",
     "react-native-gesture-handler": "~1.6.0",
     "react-native-linear-gradient": "^2.5.6",
     "react-native-reanimated": "~1.9.0",

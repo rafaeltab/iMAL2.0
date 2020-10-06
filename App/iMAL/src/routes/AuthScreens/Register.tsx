@@ -41,8 +41,10 @@ class Register extends React.Component<NavigationStackScreenProps, RegisterState
             auth.TryRegister(this.state.email, this.state.pass).then((res) => {
                 if (res != "") {
                     //we got the uuid for the verification
+                    auth.setCode(res);
+                    console.log("Obtained uuid: " + res);
                     //OLD: Linking.openURL(res);
-                    this.props.navigation.replace("Verif");
+                    this.props.navigation.replace("Verify");
                 }
             });
         }); 
@@ -93,14 +95,6 @@ class Register extends React.Component<NavigationStackScreenProps, RegisterState
                         activeOpacity={0.6}
                         onPress={this.DoSignin.bind(this)}>
                         <Text style={styles.LoginButtonText}>Login</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.LoginButton}
-                        activeOpacity={0.6}
-                        onPress={a => {
-                            this.props.navigation.navigate("Verify");
-                        }}>
-                        <Text style={styles.LoginButtonText}>Go To verif</Text>
                     </TouchableOpacity>
                 </View>
             </View> 
